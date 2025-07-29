@@ -1,0 +1,6 @@
+🗓️ Tuesday 29th July
+------------------------
+ How to Finetune Llama-3 and Use In Ollama
+
+(tutorial colab:https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/Llama3_(8B)-Ollama.ipynb)
+
