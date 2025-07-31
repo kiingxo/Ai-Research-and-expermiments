@@ -153,3 +153,41 @@ Dataset Design Steps
     {"role": "assistant", "content": "It's 2!"}
   ]
 }
+🧪 Unsloth Fine-Tuning Steps (from CodeLabs)
+--------------------------------------------
+
+These are the typical steps seen across all Unsloth notebooks when fine-tuning LLMs:
+
+1. **Install Dependencies**
+   ```bash
+   pip install -q unsloth datasets trl peft accelerate bitsandbytes
+   ```
+
+2. **Load the Base Model**
+   - Load your chosen model (e.g., LLaMA 3, Mistral, etc.) using `unsloth.load_model()` with appropriate configuration (quantized, 8-bit, etc.).
+
+3. **Prepare the Dataset**
+   - Load dataset using `datasets.load_dataset()`.
+   - Format the dataset into `ChatML`, `ShareGPT`, or `Alpaca` format depending on use case.
+   - Tokenize with the model’s tokenizer.
+
+4. **Apply Formatting / Template**
+   - Structure each sample into the correct prompt-response format using instruction-based templates or chat formats.
+
+5. **Set Training Arguments**
+   - Define `TrainingArguments` (batch size, learning rate, epochs, evaluation strategy, etc.).
+
+6. **Initialize Trainer**
+   - Use `SFTTrainer` from `trl` or `unsloth.get_trainer()` to set up the training loop.
+
+7. **Train the Model**
+   - Call `trainer.train()` to start training the model on the prepared dataset.
+
+8. **Save the Fine-Tuned Model**
+   - Save the model and tokenizer to a local directory or push to Hugging Face using `trainer.save_model()`.
+
+9. **Inference (optional)**
+   - Reload the model and tokenizer.
+   - Generate responses using `.generate()` with prompt inputs.
+
+📝 These steps stay consistent whether you're working on Alpaca-style instruction tuning or ShareGPT-style dialogues.
