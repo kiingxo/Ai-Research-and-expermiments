@@ -201,3 +201,101 @@ The error is:
 - 0.134 - 0.13 = 0.004
 
 This small error may seem negligible, but when it happens across millions of weights and activations in a model, it can impact final prediction accuracy.
+
+⸻
+
+Types of Fine-Tuning
+
+There are several fine-tuning strategies used with LLMs depending on the size of the model, the amount of training data, and available compute. Below are the most common approaches:
+
+Full Fine-Tuning:
+- All the parameters of the model are updated during training.
+- Offers the highest flexibility and potential accuracy.
+- Very compute-intensive and memory-hungry.
+- Best used in research labs or large organizations.
+
+Parameter-Efficient Fine-Tuning (PEFT):
+- Only a small portion of the model’s parameters are updated.
+- Requires much less compute and can be done on consumer GPUs.
+- Popular methods include:
+
+LoRA (Low-Rank Adaptation):
+- Introduces small trainable adapter layers in attention modules.
+- Keeps the base model frozen while fine-tuning just a few million parameters.
+- Common in low-resource settings and works well with quantized models (e.g., QLoRA).
+
+Adapter Tuning:
+- Adds small neural networks (adapters) between transformer layers.
+- Allows specialization without modifying the original weights.
+
+Prefix Tuning:
+- Prepends trainable vectors (prefixes) to each layer's input.
+- Efficient and useful for control or multi-task setups.
+
+Instruction Tuning:
+- Fine-tuning the model to better follow human instructions.
+- Trained on pairs like: Instruction → Expected Response.
+- Forms the basis for models like FLAN-T5 or InstructGPT.
+
+Domain-Specific Fine-Tuning:
+- Trains the model on specialized content (e.g., legal, medical, finance).
+- Helps models perform better on domain-specific tasks.
+
+Multi-Task Fine-Tuning:
+- Fine-tunes on multiple tasks at once (e.g., summarization + question answering).
+- Improves generalization and robustness.
+
+RLHF (Reinforcement Learning with Human Feedback):
+- Advanced alignment method used after instruction tuning.
+- Includes reward modeling and reinforcement learning (PPO).
+- Powers models like ChatGPT and Claude to be more helpful and safe.
+
+Summary:
+- Full fine-tuning gives full control but is expensive.
+- PEFT methods like LoRA and Adapters are more practical for most users.
+- Instruction tuning and domain tuning shape model behavior and expertise.
+- RLHF is used for aligning models with human preferences.
+
+⸻
+
+How LoRA Works (with Math Explanation)
+
+LoRA (Low-Rank Adaptation) is a technique that allows efficient fine-tuning of large models by injecting small trainable matrices into the model's architecture, typically the attention layers. The key idea is to freeze the original model weights and only train these added matrices.
+
+In standard transformers, a linear layer is represented as:
+- y = W₀ · x
+
+Where:
+- W₀ is the original pretrained weight matrix
+- x is the input
+
+Instead of fine-tuning W₀ directly, LoRA defines a new weight matrix:
+- W = W₀ + ΔW
+
+And instead of learning ΔW directly (which is large), LoRA approximates it using two smaller matrices A and B:
+- ΔW = B · A
+
+So the updated transformation becomes:
+- y = (W₀ + B · A) · x
+- Or equivalently: y = W₀ · x + B · (A · x)
+
+Only A and B are trainable. W₀ remains frozen. This greatly reduces the number of trainable parameters.
+
+Example:
+- Suppose W₀ is 1024 × 1024 (over 1 million parameters)
+- Choose LoRA rank r = 8
+- A is 8 × 1024, B is 1024 × 8 → Only 16,384 parameters trained
+
+Alternate Notation:
+Some sources express this using summation:
+- W = W₀ + ∑(Bᵢ · Aᵢ)
+
+This just means multiple LoRA modules can be applied (e.g., to different heads or layers). If only one LoRA module is used, it simplifies to:
+- W = W₀ + B · A
+
+This is mathematically equivalent to the form shown above.
+
+Summary:
+- LoRA replaces expensive full fine-tuning with a low-rank update
+- It reduces memory and compute cost
+- It is compatible with quantized models (e.g., QLoRA)
