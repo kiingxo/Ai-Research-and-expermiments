@@ -1,28 +1,67 @@
-youtube Tutorial: https://youtu.be/iOdFUJiB0Zc?si=JpHHeFLNVxMUSqiU
-Description:Learn how to fine tuning LLM models. This course will teach you fine tuning using using QLORA and LORA, as well as Quantization using LLama2, Gradient and the Google Gemma model.
+YouTube Tutorial: https://youtu.be/iOdFUJiB0Zc?si=JpHHeFLNVxMUSqiU
+Description: Learn how to fine-tune LLM models. This course will teach you fine-tuning using QLoRA and LoRA, as well as Quantization using LLaMA2, Gradient, and the Google Gemma model.
 
+⸻
 
-Full precision and half precision:
-how data is stored
+Full Precision vs Half Precision
+	•	Full precision: Typically uses 32-bit floating point (FP32)
+	•	Half precision: Uses 16-bit (FP16 or BF16), reducing memory and compute usage
+
+⸻
 
 Revisiting Quantization
 
 Quantization is the process of converting a model from a higher-precision format to a lower-precision format.
-This is done to reduce memory usage and increase inference speed — with only a slight sacrifice in model performance or accuracy.
 
-For example, let’s assume we have a large language model (LLM) originally trained in full precision (32-bit float). During quantization, this model can be converted to 16-bit (FP16) or even 8-bit (INT8) formats, significantly reducing the size and compute requirements.
+Goal:
+	•	Reduce memory footprint
+	•	Speed up inference
+	•	Keep model accuracy close to original
 
+Example:
+	•	Original model trained in FP32 (32-bit float)
+	•	Can be quantized to:
+	•	FP16 (16-bit float)
+	•	INT8 (8-bit integer)
+	•	Even 4-bit (used in QLoRA)
+
+⸻
 
 Why Quantization Matters During Fine-tuning
 
-When fine-tuning LLMs (e.g., LLaMA, Mistral, or MPT), especially on consumer-grade hardware (like a laptop with 16GB RAM or a 24GB GPU), full-precision models may be too large to fit in memory.
+When fine-tuning LLMs (like LLaMA, Mistral, or MPT) on laptops or consumer GPUs, full-precision models may not fit in memory.
 
 🔧 Example Use Case:
-
-You’re fine-tuning a 7B parameter LLaMA model:
-	•	The FP32 version may require over 60–80GB of VRAM.
-	•	The 4-bit quantized version (e.g., QLoRA) can run and be fine-tuned on just 16–24GB VRAM.
+Fine-tuning a 7B LLaMA model:
+	•	FP32 version needs ~60–80GB VRAM
+	•	4-bit quantized version (QLoRA) fits into 16–24GB VRAM
 
 This makes it possible to:
-	•	Run the model on a single GPU (e.g., RTX 3090 or Apple M2 with 32GB RAM)
-	•	Use techniques like QLoRA (Quantized Low-Rank Adaptation) to fine-tune efficiently without sacrificing much accuracy
+	•	Run on one GPU (e.g., RTX 3090 or Apple M2 with 32–64GB RAM)
+	•	Use QLoRA for fine-tuning with low memory but good accuracy
+
+⸻
+
+Types of Quantization
+	1.	Post-Training Quantization: Applied after model training.
+	2.	Quantization-Aware Training (QAT): Model is trained with quantization in mind.
+
+Precision Levels
+	•	FP32: Full precision (baseline)
+	•	FP16 / BF16: Half precision
+	•	INT8: 8-bit integer quantization
+	•	4-bit: Aggressive compression (used in QLoRA)
+
+⸻
+
+Symmetric vs Asymmetric Quantization
+
+Symmetric Quantization:
+	•	Zero-point is fixed at 0
+	•	Same scale factor is used across the tensor
+	•	More efficient, but less flexible
+
+Asymmetric Quantization:
+	•	Non-zero zero-point
+	•	Each tensor (or channel) can have different scale/zero-point
+	•	More accurate, especially for weights or activations not centered around 0
