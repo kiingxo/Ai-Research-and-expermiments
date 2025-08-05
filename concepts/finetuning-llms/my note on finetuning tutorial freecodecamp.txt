@@ -31,7 +31,7 @@ Why Quantization Matters During Fine-tuning
 
 When fine-tuning LLMs (like LLaMA, Mistral, or MPT) on laptops or consumer GPUs, full-precision models may not fit in memory.
 
-🔧 Example Use Case:
+Example Use Case:
 Fine-tuning a 7B LLaMA model:
 	•	FP32 version needs ~60–80GB VRAM
 	•	4-bit quantized version (QLoRA) fits into 16–24GB VRAM
@@ -96,6 +96,42 @@ Example:
 
 ⸻
 
-Summary:
-• Symmetric = simpler and faster, good for weights
-• Asymmetric = more accurate for shifted ranges, better for activations
+
+⸻
+
+How Quantization Works: Float to Int Mapping
+
+To understand how a float (like FP32) is converted to an integer (like INT8 or 4-bit), you need two things:
+1. A **scale** — tells how much to stretch or shrink the float range
+2. A **zero-point** (only for asymmetric) — tells where 0 in float maps in int space
+
+General formulas:
+• **Symmetric**: 
+    quantized = round(float_value / scale)
+    dequantized = quantized * scale
+
+• **Asymmetric**: 
+    quantized = round((float_value / scale) + zero_point)
+    dequantized = (quantized - zero_point) * scale
+
+Example – Symmetric:
+Let’s say your float values range from -1.0 to 1.0. You want to quantize to INT8 (range -127 to 127).
+
+- scale = (max(abs(min), abs(max))) / 127 = 1.0 / 127 ≈ 0.00787
+- float = 0.5
+- quantized = round(0.5 / 0.00787) ≈ 64
+
+Example – Asymmetric:
+Float values range from 0 to 6.0, quantized to UINT8 (0 to 255):
+
+- scale = (6.0 - 0.0) / 255 ≈ 0.0235
+- zero_point = 0
+- float = 3.0
+- quantized = round((3.0 / 0.0235) + 0) ≈ 128
+
+Dequantization lets you approximate the original value from the quantized int:
+- dequantized = 128 * 0.0235 = 3.008
+
+Why This Matters:
+- Quantization is lossy (you can’t perfectly recover the original float)
+- The goal is to minimize error and still let the model perform well
