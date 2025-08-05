@@ -42,9 +42,54 @@ This makes it possible to:
 
 ⸻
 
+
 Types of Quantization
-	1.	Post-Training Quantization: Applied after model training.
-	2.	Quantization-Aware Training (QAT): Model is trained with quantization in mind.
+
+PTQ – Post-Training Quantization:
+- Quantization is applied after the model has been trained in full precision (e.g. FP32).
+- No retraining required.
+- Fast and simple to use.
+- Slight accuracy drop may occur, especially at lower bit widths like INT8 or INT4.
+
+QAT – Quantization-Aware Training:
+- Quantization is simulated during training.
+- The model learns to adapt to low-precision representation.
+- Results in higher accuracy compared to PTQ, especially for low-bit models.
+- Requires retraining or fine-tuning.
+
+Other Variants and Techniques:
+
+Weight-Only Quantization:
+- Only the model weights are quantized.
+- Activations remain in floating point (FP32/FP16).
+- Common in 4-bit quantization for LLMs.
+
+Activation Quantization:
+- Only activations are quantized.
+- Useful in edge devices where activations dominate memory usage.
+
+Dynamic Quantization:
+- Weights are quantized once, activations are quantized dynamically during inference.
+- Fast to apply and useful for CPU inference.
+
+Static Quantization:
+- Requires calibration data to determine optimal ranges for weights and activations.
+- More accurate than dynamic quantization but requires a calibration step.
+
+Mixed Precision Quantization:
+- Different layers or parts of the model use different bit-widths (e.g. FP16 for attention layers, INT8 for feedforward layers).
+
+Block-wise / Group-wise Quantization:
+- Weights are quantized in blocks or groups rather than whole tensors.
+- Used in GPTQ and AWQ to preserve accuracy.
+
+LoRA + Quantization (QLoRA):
+- Combines 4-bit quantization with LoRA adapters for fine-tuning.
+- Enables large models to be fine-tuned on low VRAM devices.
+
+Summary:
+- PTQ and QAT are the two main approaches to quantization.
+- Real-world systems often combine these with techniques like weight-only quantization, dynamic/static quantization, and group-wise methods.
 
 Precision Levels
 	•	FP32: Full precision (baseline)
@@ -135,3 +180,24 @@ Dequantization lets you approximate the original value from the quantized int:
 Why This Matters:
 - Quantization is lossy (you can’t perfectly recover the original float)
 - The goal is to minimize error and still let the model perform well
+
+Example – Accuracy Drop from Dequantization:
+
+Suppose a model weight is originally:
+- float = 0.134
+
+During quantization:
+- scale = 0.01
+- quantized = round(0.134 / 0.01) = 13
+
+During dequantization:
+- dequantized = 13 * 0.01 = 0.13
+
+So:
+- Original float: 0.134
+- After quantization + dequantization: 0.13
+
+The error is:
+- 0.134 - 0.13 = 0.004
+
+This small error may seem negligible, but when it happens across millions of weights and activations in a model, it can impact final prediction accuracy.
