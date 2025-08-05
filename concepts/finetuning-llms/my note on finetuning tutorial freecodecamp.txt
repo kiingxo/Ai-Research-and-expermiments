@@ -260,6 +260,51 @@ Summary:
 
 How LoRA Works (with Math Explanation)
 
+⸻
+
+Matrix Decomposition View of LoRA
+
+LoRA is based on the idea of **matrix decomposition**, specifically **low-rank approximation**.
+
+In traditional fine-tuning:
+- You update a large matrix W₀ (e.g., 1024 × 1024)
+
+In LoRA:
+- You approximate the update ΔW using two much smaller matrices B and A:
+  - ΔW = B · A
+
+This is equivalent to **low-rank decomposition** in linear algebra, where a large matrix is approximated by the product of two lower-dimensional matrices.
+
+Visual Example:
+
+Suppose W₀ is 4 × 4:
+
+    W₀ =  | 1.0  0.5  0.2  0.1 |
+          | 0.5  1.0  0.3  0.2 |
+          | 0.2  0.3  1.0  0.4 |
+          | 0.1  0.2  0.4  1.0 |
+
+Instead of learning a full ΔW (4×4 = 16 values), we learn:
+    
+    A =  | 0.1  0.2  0.3  0.4 |
+         | 0.5  0.6  0.7  0.8 |    (2 × 4)
+
+    B =  | 0.9  1.0 |
+         | 0.8  0.7 |
+         | 0.6  0.5 |
+         | 0.4  0.3 |    (4 × 2)
+
+
+Then:
+
+    ΔW = B · A    → shape (4×4)
+
+This low-rank decomposition captures key patterns while using fewer trainable parameters.
+
+Key Point:
+- This is **not a random trick** — it's grounded in mathematical principles from linear algebra.
+- It works well in practice because many weight updates in deep networks can be approximated with low-rank structures.
+
 LoRA (Low-Rank Adaptation) is a technique that allows efficient fine-tuning of large models by injecting small trainable matrices into the model's architecture, typically the attention layers. The key idea is to freeze the original model weights and only train these added matrices.
 
 In standard transformers, a linear layer is represented as:
@@ -299,3 +344,35 @@ Summary:
 - LoRA replaces expensive full fine-tuning with a low-rank update
 - It reduces memory and compute cost
 - It is compatible with quantized models (e.g., QLoRA)
+
+⸻
+
+LoRA Rank Explained
+
+In LoRA, the "rank" (denoted as r) is a hyperparameter that controls the size of the trainable low-rank matrices A and B, which are used to approximate the weight update ΔW in the model.
+
+Mathematically:
+- ΔW = B · A
+- A has shape [r, d] (down-projection)
+- B has shape [d, r] (up-projection)
+- So ΔW has shape [d, d], matching the original weight matrix W₀
+
+Why Rank Matters:
+- A smaller rank (e.g., r = 4 or 8) drastically reduces the number of trainable parameters and memory use.
+- A larger rank (e.g., r = 64 or 128) offers more expressive power but uses more resources.
+- Choosing the right rank is a trade-off between efficiency and performance.
+
+Example:
+If W₀ is 1024 × 1024 (1,048,576 parameters), and you use r = 8:
+- A = [8 × 1024], B = [1024 × 8]
+- Total trainable parameters = 16,384
+- This is ~1.6% of the original size.
+
+Typical values for r:
+- QLoRA models often use ranks like 4, 8, or 16.
+- r = d would be equivalent to full-rank fine-tuning, which defeats LoRA's purpose.
+
+Summary:
+- The rank determines how large and expressive the LoRA adaptation is.
+- Lower ranks = faster and smaller
+- Higher ranks = more flexible but costlier
