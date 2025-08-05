@@ -56,12 +56,46 @@ Precision Levels
 
 Symmetric vs Asymmetric Quantization
 
-Symmetric Quantization:
-	•	Zero-point is fixed at 0
-	•	Same scale factor is used across the tensor
-	•	More efficient, but less flexible
+Quantization is about converting float values (e.g. 32-bit floats) into smaller integer representations (like 8-bit), to reduce model size and speed up inference.
 
-Asymmetric Quantization:
-	•	Non-zero zero-point
-	•	Each tensor (or channel) can have different scale/zero-point
-	•	More accurate, especially for weights or activations not centered around 0
+There are two main strategies:
+
+⸻
+
+Symmetric Quantization
+• The float values are assumed to be centered around 0 (like from -1.0 to +1.0).
+• The zero-point is always 0.
+• Uses the same scale factor across the tensor.
+• Commonly used for model weights.
+
+Formula:
+	quantized = round(float_value / scale)
+
+Example:
+	If your float values range from -1.0 to +1.0, and scale = 1.0 / 127, then:
+	- float -1.0 → int -127
+	- float  0.0 → int   0
+	- float +1.0 → int +127
+
+⸻
+
+Asymmetric Quantization
+• The float values are not centered around 0 — may be all positive (like from 0 to 6).
+• A non-zero zero-point is used to shift the range.
+• Each tensor (or channel) can have a different scale and zero-point.
+• Often used for activations (e.g. outputs of ReLU).
+
+Formula:
+	quantized = round((float_value / scale) + zero_point)
+
+Example:
+	If float values range from 0.0 to 6.0, and scale = 6.0 / 255, zero_point = 0:
+	- float 0.0 → int 0
+	- float 3.0 → int 127
+	- float 6.0 → int 255
+
+⸻
+
+Summary:
+• Symmetric = simpler and faster, good for weights
+• Asymmetric = more accurate for shifted ranges, better for activations
