@@ -1,0 +1,13 @@
+youtube Tutorial: https://youtu.be/iOdFUJiB0Zc?si=JpHHeFLNVxMUSqiU
+Description:Learn how to fine tuning LLM models. This course will teach you fine tuning using using QLORA and LORA, as well as Quantization using LLama2, Gradient and the Google Gemma model.
+
+
+Full precision and half precision:
+how data is stored
+
+Revisiting Quantization
+
+Quantization is the process of converting a model from a higher-precision format to a lower-precision format.
+This is done to reduce memory usage and increase inference speed — with only a slight sacrifice in model performance or accuracy.
+
+For example, let’s assume we have a large language model (LLM) originally trained in full precision (32-bit float). During quantization, this model can be converted to 16-bit (FP16) or even 8-bit (INT8) formats, significantly reducing the size and compute requirements.
