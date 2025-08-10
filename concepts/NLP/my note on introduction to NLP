@@ -1,0 +1,16 @@
+What is NLP?
+Natural Language Processing (NLP) is a field of Artificial Intelligence that enables computers to understand, interpret, and generate human language in a meaningful way.
+
+Importance of Data Preparation in NLP
+Raw text data is often messy — full of variations in case, punctuation, and irrelevant words. Data preparation cleans and standardizes text so NLP models can process it effectively. Well-prepared data reduces noise, improves model accuracy, and speeds up training.
+
+Lowercasing
+Lowercasing means converting all text to lowercase (e.g., “Apple” → “apple”). This helps reduce duplicate representations of the same word and ensures that words differing only in case are treated equally, which simplifies vocabulary and improves consistency.
+
+Stop Words
+Stop words are common words (e.g., “and”, “the”, “is”) that often carry little meaning for certain NLP tasks. Removing them can reduce dataset size and focus the model on more meaningful terms, though in some tasks (like sentiment analysis) keeping them may be beneficial.
+Reason: These words occur so frequently in language that they usually don’t help in distinguishing between different documents or meanings. Removing them helps models focus on the words that carry the most information.
+
+Tokenization
+Tokenization is the process of breaking down text into smaller units called tokens. These tokens can be words, subwords, or even individual characters, depending on the task. For example, the sentence "NLP is fun" can be tokenized into ["NLP", "is", "fun"].
+Tokenization is important because it transforms raw text into a format that NLP models can understand and process. By splitting text into consistent units, models can analyze meaning, frequency, and relationships between words more effectively.
