@@ -94,20 +94,21 @@ While both RNNs (Recurrent Neural Networks) and Transformers are designed to han
 **Summary:** RNNs are better suited for smaller, streaming, or real-time sequential tasks, while Transformers dominate large-scale NLP tasks, especially those requiring deep context and parallel processing.
 
 Transformers
-A Transformer is a deep learning architecture introduced in the paper "Attention is All You Need" (2017). It revolutionized NLP by replacing recurrent and convolutional layers with self-attention mechanisms, allowing for better parallelization and improved handling of long-range dependencies.
+A Transformer is a deep learning architecture introduced in the paper "Attention is All You Need" (2017). It revolutionized NLP by replacing recurrent and convolutional layers with self-attention mechanisms, allowing for better parallelization and improved handling of long-range dependencies. Transformers form the backbone of most modern LLMs.
 
-Path of Transformers
-The Transformer architecture processes input text through a sequence of steps that convert raw tokens into contextualized representations used for predictions. These steps generally include:
+Layers in a Transformer
 
-1. **Start Token**
-   A special token (often called `[CLS]`, `<s>`, or similar depending on the model) is added to the beginning of the input sequence. This token can be used to represent the overall meaning of the sequence for tasks like classification.
+1. Input Embedding Layer
+The first step in a Transformer is converting tokenized input text into dense vector representations. Each token ID from the vocabulary is mapped to a learned embedding vector. These embeddings capture semantic meaning so that words with similar meanings have similar vector representations. For example, in a well-trained embedding space, the vector for "king" minus "man" plus "woman" will be close to the vector for "queen".
 
-2. **Input**
-   The input text is first tokenized into smaller units (tokens), which are then converted into numerical IDs according to the model's vocabulary.
+2. Positional Embedding
+Unlike RNNs, Transformers do not inherently process tokens in order. To give the model a sense of word order, positional embeddings (or encodings) are added to the input embeddings. These are vectors that encode each token’s position in the sequence using either fixed sinusoidal functions (as in the original paper) or learned parameters. This helps the model distinguish between "dog bites man" and "man bites dog".
 
-3. **Embedding**
-   Each token ID is mapped to a dense vector representation (embedding). These embeddings capture semantic meaning and are combined with positional encodings to retain information about the order of tokens in the sequence.
+3. Encoder Block
+The core building block of a Transformer encoder consists of multiple layers stacked on top of each other. Each encoder block contains:
 
-   The embedding layer transforms each token ID into a continuous vector space where words with similar meanings have vectors that are close together. This allows the model to capture semantic relationships between words. For example, in a well-trained embedding space, the vector for "king" minus "man" plus "woman" will be close to the vector for "queen".
+   a. Multi-Head Attention Layer  
+   This layer allows each token to attend to other tokens in the sequence, capturing relationships and dependencies regardless of distance. The "multi-head" aspect means the model uses multiple attention mechanisms in parallel, each focusing on different types of relationships.
 
-   In Transformers, embeddings are often learned during the pre-training phase. Additionally, positional encodings are added to these embeddings so that the model is aware of the order of words, which is crucial since the self-attention mechanism does not inherently consider sequence order.
+   b. Feed Forward Layer  
+   After the attention step, each token representation is passed through a position-wise feed forward neural network (the same network is applied to each position independently). This layer helps in further transforming and refining the token representations before they move to the next encoder block.
