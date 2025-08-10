@@ -74,4 +74,25 @@ stems = [stemmer.stem(word) for word in words]
 print(stems)  # Output: ['run', 'fli', 'happili']
 ```
 
-While stemming is fast and useful, it can sometimes produce stems that are not actual dictionary words.
+
+N-grams
+An n-gram is a contiguous sequence of n items (usually words or characters) from a given text. N-grams are used in NLP to capture the context and relationship between words. The "n" represents how many words are in each sequence:
+- Unigram (n=1): ["NLP", "is", "fun"]
+- Bigram (n=2): ["NLP is", "is fun"]
+- Trigram (n=3): ["NLP is fun"]
+
+N-grams are useful for tasks like text prediction, language modeling, and keyword extraction because they preserve some order and context from the original text.
+
+Example of creating bigrams using NLTK:
+
+```python
+import nltk
+from nltk import ngrams
+
+text = ["NLP", "is", "fun"]
+bigrams = list(ngrams(text, 2))
+
+print(bigrams)  # Output: [('NLP', 'is'), ('is', 'fun')]
+```
+
+By analyzing the frequency of n-grams, models can better understand patterns in language.
