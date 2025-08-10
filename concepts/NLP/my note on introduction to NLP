@@ -14,3 +14,64 @@ Reason: These words occur so frequently in language that they usually don’t he
 Tokenization
 Tokenization is the process of breaking down text into smaller units called tokens. These tokens can be words, subwords, or even individual characters, depending on the task. For example, the sentence "NLP is fun" can be tokenized into ["NLP", "is", "fun"].
 Tokenization is important because it transforms raw text into a format that NLP models can understand and process. By splitting text into consistent units, models can analyze meaning, frequency, and relationships between words more effectively.
+
+Using Tokenization with NLTK
+In Python, the Natural Language Toolkit (NLTK) provides a simple way to tokenize text. For example:
+
+```python
+import nltk
+from nltk.tokenize import word_tokenize
+
+# Download required data
+nltk.download('punkt')
+
+text = "NLP is fun"
+tokens = word_tokenize(text)
+
+print(tokens)  # Output: ['NLP', 'is', 'fun']
+```
+
+NLTK automatically handles punctuation and spacing, making it a quick tool for preparing text for NLP tasks.
+
+Sentence Tokenization
+Sentence tokenization, also called sentence segmentation, is the process of splitting text into individual sentences. This is useful when you need to analyze or process text at the sentence level, such as in summarization or question answering.
+
+Using NLTK for sentence tokenization is straightforward:
+
+```python
+import nltk
+from nltk.tokenize import sent_tokenize
+
+# Download required data
+nltk.download('punkt')
+
+text = "NLP is fun. It helps computers understand language."
+sentences = sent_tokenize(text)
+
+print(sentences)  # Output: ['NLP is fun.', 'It helps computers understand language.']
+```
+
+This method detects sentence boundaries based on punctuation and language rules, making it easier to work with text in smaller, meaningful chunks.
+
+Stemming
+Stemming is the process of reducing words to their base or root form by removing suffixes and prefixes. The resulting stem may not always be a real word but is meant to capture the core meaning. For example:
+- "running" → "run"
+- "flies" → "fli"
+- "happily" → "happi"
+
+The purpose of stemming is to group similar words together so they can be analyzed as the same term in NLP tasks like search or text classification.
+
+Using NLTK for stemming is simple:
+
+```python
+from nltk.stem import PorterStemmer
+
+stemmer = PorterStemmer()
+
+words = ["running", "flies", "happily"]
+stems = [stemmer.stem(word) for word in words]
+
+print(stems)  # Output: ['run', 'fli', 'happili']
+```
+
+While stemming is fast and useful, it can sometimes produce stems that are not actual dictionary words.
