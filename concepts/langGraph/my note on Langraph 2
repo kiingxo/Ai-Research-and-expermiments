@@ -1,0 +1,65 @@
+
+
+
+# LangGraph Overview
+
+**LangGraph** is a framework for building applications powered by Large Language Models (LLMs) that operate as **stateful, multi-step agents**.  
+It extends the concepts from LangChain but focuses on **graph-based workflows**, where each node can represent a function, model call, or decision point, and edges define the flow of execution.
+
+## Why LangGraph?
+- **Control**: Gives developers more control over execution flow than a purely sequential chain.
+- **Statefulness**: Maintains persistent state between steps.
+- **Branching & Conditional Logic**: Can adapt flow based on runtime conditions.
+- **Multi-Actor Support**: Different “agents” or components can interact in a structured way.
+
+## Important Components
+
+### 1. Nodes
+A **node** is a unit of execution in LangGraph — it can be:
+- An LLM call
+- A tool or function
+- A custom Python function
+
+Example:
+```python
+from langgraph.graph import Node
+
+def my_function(state):
+    return {"message": "Hello from node!"}
+
+node = Node(name="greet", func=my_function)
+```
+
+### 2. Edges
+**Edges** connect nodes and define execution order. They can be:
+- **Static edges**: Always executed after a node.
+- **Conditional edges**: Chosen based on state or LLM output.
+
+### 3. State
+The **state** is a dictionary-like object that stores variables between node executions.  
+This allows you to:
+- Pass outputs from one node to another
+- Maintain memory across steps
+
+### 4. Graph
+The **graph** is the full workflow — a collection of nodes and edges.  
+It defines:
+- How nodes are connected
+- The start and end points
+- Possible branches and loops
+
+### 5. Executors
+An **executor** runs the graph, managing state updates and node transitions.
+
+```python
+from langgraph.graph import Graph
+
+graph = Graph()
+graph.add_node(node)
+graph.set_entry_point("greet")
+```
+
+## Example Use Cases
+- Multi-step customer support chatbot
+- AI research assistant with different tools for summarizing, searching, and analyzing
+- Automated document workflow with decision branches
