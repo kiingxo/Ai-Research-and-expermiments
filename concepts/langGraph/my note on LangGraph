@@ -1,0 +1,95 @@
+# LangGraph Notes
+**Date:** Friday, August 15, 2025
+
+## 1. Typed Dictionary
+A **Typed Dictionary** is a data structure that behaves like a normal Python dictionary but with type annotations for its keys and values. This is often used to define the expected structure of a dictionary so that type checkers (like `mypy` or `pyright`) can catch errors at development time.  
+Example:
+```python
+from typing import TypedDict, NotRequired
+
+class Person(TypedDict):
+    name: str
+    age: int
+    address: NotRequired[str]
+
+person: Person = {"name": "Israel", "age": 23}
+```
+This ensures that `person` must have a `name` (string) and `age` (integer).
+
+Note: The `address` field is optional and can be omitted from the dictionary.
+
+## 2. Union
+A **Union** is a type hint that specifies a value can be one of several types. It’s useful when a variable, parameter, or return value may legally hold multiple possible types.  
+Example:
+```python
+from typing import Union
+
+def parse_input(data: Union[str, int]):
+    print(f"Received: {data}")
+
+parse_input("hello")  # OK
+parse_input(42)       # OK
+```
+Here, `data` can be either a string or an integer.
+
+## 5. Lambda Function
+A **lambda function** is a small, anonymous function defined with the `lambda` keyword. It can have any number of parameters but only one expression, and it returns the result of that expression. Lambda functions are often used for short, throwaway operations where defining a full `def` function would be unnecessary.
+
+Example:
+```python
+# Basic lambda
+add = lambda x, y: x + y
+print(add(2, 3))  # Output: 5
+
+# Using lambda with map
+numbers = [1, 2, 3, 4]
+squared = list(map(lambda n: n ** 2, numbers))
+print(squared)  # Output: [1, 4, 9, 16]
+
+# Using lambda with sorted
+data = [("Israel", 22), ("John", 30), ("Ada", 25)]
+sorted_data = sorted(data, key=lambda item: item[1])
+print(sorted_data)  # Output: [('Israel', 22), ('Ada', 25), ('John', 30)]
+```
+**Tip:** While lambda functions are convenient, avoid overusing them for complex logic — regular functions are more readable.
+
+## 3. Optional
+
+## 4. Any
+**Any** is a special type hint that can represent any type of value without restrictions. When a variable is annotated with `Any`, the type checker will not enforce type constraints on it. This can be useful when you are working with dynamic or unknown types, but it should be used sparingly because it bypasses static type safety.
+
+Example:
+```python
+from typing import Any
+
+def process_data(data: Any):
+    # Type checker will not enforce rules on 'data'
+    print(f"Processing: {data}")
+
+process_data("Hello")    # OK
+process_data(123)        # OK
+process_data([1, 2, 3])  # OK
+```
+Here, `data` can be of any type, and the function will accept it without type errors.
+
+**Tip:** Use `Any` only when you truly cannot predict the type, as it disables the benefits of static type checking.
+
+## 3. Optional
+**Optional** is a type hint that indicates a value can either be of a specific type or `None`. This is equivalent to `Union[Type, None]` but more concise and expressive. It’s often used when a variable, function parameter, or return value may be absent (i.e., set to `None`).
+
+Example:
+```python
+from typing import Optional
+
+def get_user_name(user_id: int) -> Optional[str]:
+    if user_id == 1:
+        return "Israel"
+    return None
+
+name = get_user_name(2)
+if name is None:
+    print("User not found")
+else:
+    print(f"User name is {name}")
+```
+In this example, the function may return either a string (user name) or `None` if no user is found.
