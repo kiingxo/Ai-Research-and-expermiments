@@ -1,65 +1,155 @@
-
-
-
-# LangGraph Overview
-
-**LangGraph** is a framework for building applications powered by Large Language Models (LLMs) that operate as **stateful, multi-step agents**.  
-It extends the concepts from LangChain but focuses on **graph-based workflows**, where each node can represent a function, model call, or decision point, and edges define the flow of execution.
-
-## Why LangGraph?
-- **Control**: Gives developers more control over execution flow than a purely sequential chain.
-- **Statefulness**: Maintains persistent state between steps.
-- **Branching & Conditional Logic**: Can adapt flow based on runtime conditions.
-- **Multi-Actor Support**: Different “agents” or components can interact in a structured way.
-
-## Important Components
-
-### 1. Nodes
-A **node** is a unit of execution in LangGraph — it can be:
-- An LLM call
-- A tool or function
-- A custom Python function
-
-Example:
-```python
-from langgraph.graph import Node
-
-def my_function(state):
-    return {"message": "Hello from node!"}
-
-node = Node(name="greet", func=my_function)
-```
-
-### 2. Edges
-**Edges** connect nodes and define execution order. They can be:
-- **Static edges**: Always executed after a node.
-- **Conditional edges**: Chosen based on state or LLM output.
-
-### 3. State
-The **state** is a dictionary-like object that stores variables between node executions.  
-This allows you to:
-- Pass outputs from one node to another
-- Maintain memory across steps
-
-### 4. Graph
-The **graph** is the full workflow — a collection of nodes and edges.  
-It defines:
-- How nodes are connected
-- The start and end points
-- Possible branches and loops
-
-### 5. Executors
-An **executor** runs the graph, managing state updates and node transitions.
-
-```python
-from langgraph.graph import Graph
-
-graph = Graph()
-graph.add_node(node)
-graph.set_entry_point("greet")
-```
-
 ## Example Use Cases
 - Multi-step customer support chatbot
 - AI research assistant with different tools for summarizing, searching, and analyzing
 - Automated document workflow with decision branches
+
+## Loops in Graphs
+LangGraph supports loops to enable repeated execution of certain nodes until a condition is met. This is useful for tasks like iterative refinement or polling.
+
+Example:
+```python
+from langgraph.graph import Node, Graph
+
+def check_condition(state):
+    # Continue looping if 'count' is less than 3
+    return state.get("count", 0) < 3
+
+def increment_counter(state):
+    count = state.get("count", 0) + 1
+    return {"count": count}
+
+graph = Graph()
+
+loop_node = Node(name="increment", func=increment_counter)
+condition_node = Node(name="check", func=check_condition)
+
+graph.add_node(loop_node)
+graph.add_node(condition_node)
+
+graph.add_edge(loop_node, condition_node)
+graph.add_edge(condition_node, loop_node, condition=True)  # Loop back if condition is True
+
+graph.set_entry_point("increment")
+```
+
+## Branching Logic
+Conditional edges allow the graph to branch based on state or LLM output, enabling dynamic workflows.
+
+Example:
+```python
+def decide_path(state):
+    if state.get("user_input") == "A":
+        return "path_a"
+    else:
+        return "path_b"
+
+decision_node = Node(name="decide", func=decide_path)
+path_a_node = Node(name="path_a", func=lambda s: {"result": "You chose A"})
+path_b_node = Node(name="path_b", func=lambda s: {"result": "You chose B"})
+
+graph.add_node(decision_node)
+graph.add_node(path_a_node)
+graph.add_node(path_b_node)
+
+graph.add_edge(decision_node, path_a_node, condition=lambda s: s.get("result") == "path_a")
+graph.add_edge(decision_node, path_b_node, condition=lambda s: s.get("result") == "path_b")
+
+graph.set_entry_point("decide")
+```
+
+## Parallel Execution
+LangGraph can execute multiple nodes in parallel to improve efficiency, then merge their results for subsequent processing.
+
+Example:
+```python
+from langgraph.graph import ParallelNode
+
+def fetch_data_1(state):
+    return {"data1": "Result from source 1"}
+
+def fetch_data_2(state):
+    return {"data2": "Result from source 2"}
+
+fetch_node_1 = Node(name="fetch1", func=fetch_data_1)
+fetch_node_2 = Node(name="fetch2", func=fetch_data_2)
+
+parallel_node = ParallelNode(name="fetch_parallel", nodes=[fetch_node_1, fetch_node_2])
+
+def merge_results(state):
+    data1 = state.get("data1")
+    data2 = state.get("data2")
+    return {"combined": f"{data1} + {data2}"}
+
+merge_node = Node(name="merge", func=merge_results)
+
+graph.add_node(parallel_node)
+graph.add_node(merge_node)
+
+graph.add_edge(parallel_node, merge_node)
+
+graph.set_entry_point("fetch_parallel")
+```
+
+## Error Handling
+LangGraph supports error handling strategies such as retries and fallbacks to build robust workflows.
+
+- **Retries**: Automatically retry a node on failure up to a specified number of attempts.
+- **Fallbacks**: Define alternative nodes to execute if a node fails.
+
+Example:
+```python
+def unreliable_task(state):
+    # Simulate a task that may fail
+    import random
+    if random.random() < 0.5:
+        raise Exception("Random failure")
+    return {"status": "success"}
+
+primary_node = Node(name="primary", func=unreliable_task, retries=3)
+fallback_node = Node(name="fallback", func=lambda s: {"status": "fallback executed"})
+
+graph.add_node(primary_node)
+graph.add_node(fallback_node)
+
+graph.add_edge(primary_node, fallback_node, on_error=True)  # Go to fallback if primary fails
+
+graph.set_entry_point("primary")
+```
+
+## Advanced Example: Research Assistant
+This example demonstrates a research assistant that queries documents, summarizes results, and makes recommendations.
+
+```python
+def query_documents(state):
+    query = state.get("query")
+    # Simulate document retrieval
+    docs = ["Doc1 content", "Doc2 content"]
+    return {"documents": docs}
+
+def summarize_docs(state):
+    docs = state.get("documents", [])
+    summary = " ".join(docs)[:100]  # Simple concatenation as summary
+    return {"summary": summary}
+
+def recommend_action(state):
+    summary = state.get("summary", "")
+    if "important" in summary:
+        return {"recommendation": "Schedule follow-up meeting"}
+    else:
+        return {"recommendation": "No action needed"}
+
+graph = Graph()
+
+query_node = Node(name="query_documents", func=query_documents)
+summarize_node = Node(name="summarize_docs", func=summarize_docs)
+recommend_node = Node(name="recommend_action", func=recommend_action)
+
+graph.add_node(query_node)
+graph.add_node(summarize_node)
+graph.add_node(recommend_node)
+
+graph.add_edge(query_node, summarize_node)
+graph.add_edge(summarize_node, recommend_node)
+
+graph.set_entry_point("query_documents")
+```
