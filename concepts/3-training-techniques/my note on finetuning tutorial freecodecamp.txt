@@ -1,0 +1,380 @@
+YouTube Tutorial: https://youtu.be/iOdFUJiB0Zc?si=JpHHeFLNVxMUSqiU
+Description: Learn how to fine-tune LLM models. This course will teach you fine-tuning using QLoRA and LoRA, as well as Quantization using LLaMA2, Gradient, and the Google Gemma model.
+
+⸻
+
+Full Precision vs Half Precision
+	•	Full precision: Typically uses 32-bit floating point (FP32)
+	•	Half precision: Uses 16-bit (FP16 or BF16), reducing memory and compute usage
+
+⸻
+
+Revisiting Quantization
+
+Quantization is the process of converting a model from a higher-precision format to a lower-precision format.
+
+Goal:
+	•	Reduce memory footprint
+	•	Speed up inference
+	•	Keep model accuracy close to original
+
+Example:
+	•	Original model trained in FP32 (32-bit float)
+	•	Can be quantized to:
+	•	FP16 (16-bit float)
+	•	INT8 (8-bit integer)
+	•	Even 4-bit (used in QLoRA)
+
+⸻
+
+Why Quantization Matters During Fine-tuning
+
+When fine-tuning LLMs (like LLaMA, Mistral, or MPT) on laptops or consumer GPUs, full-precision models may not fit in memory.
+
+Example Use Case:
+Fine-tuning a 7B LLaMA model:
+	•	FP32 version needs ~60–80GB VRAM
+	•	4-bit quantized version (QLoRA) fits into 16–24GB VRAM
+
+This makes it possible to:
+	•	Run on one GPU (e.g., RTX 3090 or Apple M2 with 32–64GB RAM)
+	•	Use QLoRA for fine-tuning with low memory but good accuracy
+
+⸻
+
+
+Types of Quantization
+
+PTQ – Post-Training Quantization:
+- Quantization is applied after the model has been trained in full precision (e.g. FP32).
+- No retraining required.
+- Fast and simple to use.
+- Slight accuracy drop may occur, especially at lower bit widths like INT8 or INT4.
+
+QAT – Quantization-Aware Training:
+- Quantization is simulated during training.
+- The model learns to adapt to low-precision representation.
+- Results in higher accuracy compared to PTQ, especially for low-bit models.
+- Requires retraining or fine-tuning.
+
+Other Variants and Techniques:
+
+Weight-Only Quantization:
+- Only the model weights are quantized.
+- Activations remain in floating point (FP32/FP16).
+- Common in 4-bit quantization for LLMs.
+
+Activation Quantization:
+- Only activations are quantized.
+- Useful in edge devices where activations dominate memory usage.
+
+Dynamic Quantization:
+- Weights are quantized once, activations are quantized dynamically during inference.
+- Fast to apply and useful for CPU inference.
+
+Static Quantization:
+- Requires calibration data to determine optimal ranges for weights and activations.
+- More accurate than dynamic quantization but requires a calibration step.
+
+Mixed Precision Quantization:
+- Different layers or parts of the model use different bit-widths (e.g. FP16 for attention layers, INT8 for feedforward layers).
+
+Block-wise / Group-wise Quantization:
+- Weights are quantized in blocks or groups rather than whole tensors.
+- Used in GPTQ and AWQ to preserve accuracy.
+
+LoRA + Quantization (QLoRA):
+- Combines 4-bit quantization with LoRA adapters for fine-tuning.
+- Enables large models to be fine-tuned on low VRAM devices.
+
+Summary:
+- PTQ and QAT are the two main approaches to quantization.
+- Real-world systems often combine these with techniques like weight-only quantization, dynamic/static quantization, and group-wise methods.
+
+Precision Levels
+	•	FP32: Full precision (baseline)
+	•	FP16 / BF16: Half precision
+	•	INT8: 8-bit integer quantization
+	•	4-bit: Aggressive compression (used in QLoRA)
+
+⸻
+
+Symmetric vs Asymmetric Quantization
+
+Quantization is about converting float values (e.g. 32-bit floats) into smaller integer representations (like 8-bit), to reduce model size and speed up inference.
+
+There are two main strategies:
+
+⸻
+
+Symmetric Quantization
+• The float values are assumed to be centered around 0 (like from -1.0 to +1.0).
+• The zero-point is always 0.
+• Uses the same scale factor across the tensor.
+• Commonly used for model weights.
+
+Formula:
+	quantized = round(float_value / scale)
+
+Example:
+	If your float values range from -1.0 to +1.0, and scale = 1.0 / 127, then:
+	- float -1.0 → int -127
+	- float  0.0 → int   0
+	- float +1.0 → int +127
+
+⸻
+
+Asymmetric Quantization
+• The float values are not centered around 0 — may be all positive (like from 0 to 6).
+• A non-zero zero-point is used to shift the range.
+• Each tensor (or channel) can have a different scale and zero-point.
+• Often used for activations (e.g. outputs of ReLU).
+
+Formula:
+	quantized = round((float_value / scale) + zero_point)
+
+Example:
+	If float values range from 0.0 to 6.0, and scale = 6.0 / 255, zero_point = 0:
+	- float 0.0 → int 0
+	- float 3.0 → int 127
+	- float 6.0 → int 255
+
+⸻
+
+
+⸻
+
+How Quantization Works: Float to Int Mapping
+
+To understand how a float (like FP32) is converted to an integer (like INT8 or 4-bit), you need two things:
+1. A **scale** — tells how much to stretch or shrink the float range
+2. A **zero-point** (only for asymmetric) — tells where 0 in float maps in int space
+
+General formulas:
+• **Symmetric**: 
+    quantized = round(float_value / scale)
+    dequantized = quantized * scale
+
+• **Asymmetric**: 
+    quantized = round((float_value / scale) + zero_point)
+    dequantized = (quantized - zero_point) * scale
+
+Example – Symmetric:
+Let’s say your float values range from -1.0 to 1.0. You want to quantize to INT8 (range -127 to 127).
+
+- scale = (max(abs(min), abs(max))) / 127 = 1.0 / 127 ≈ 0.00787
+- float = 0.5
+- quantized = round(0.5 / 0.00787) ≈ 64
+
+Example – Asymmetric:
+Float values range from 0 to 6.0, quantized to UINT8 (0 to 255):
+
+- scale = (6.0 - 0.0) / 255 ≈ 0.0235
+- zero_point = 0
+- float = 3.0
+- quantized = round((3.0 / 0.0235) + 0) ≈ 128
+
+Dequantization lets you approximate the original value from the quantized int:
+- dequantized = 128 * 0.0235 = 3.008
+
+Why This Matters:
+- Quantization is lossy (you can’t perfectly recover the original float)
+- The goal is to minimize error and still let the model perform well
+
+Example – Accuracy Drop from Dequantization:
+
+Suppose a model weight is originally:
+- float = 0.134
+
+During quantization:
+- scale = 0.01
+- quantized = round(0.134 / 0.01) = 13
+
+During dequantization:
+- dequantized = 13 * 0.01 = 0.13
+
+So:
+- Original float: 0.134
+- After quantization + dequantization: 0.13
+
+The error is:
+- 0.134 - 0.13 = 0.004
+
+This small error may seem negligible, but when it happens across millions of weights and activations in a model, it can impact final prediction accuracy.
+
+⸻
+
+Types of Fine-Tuning
+
+There are several fine-tuning strategies used with LLMs depending on the size of the model, the amount of training data, and available compute. Below are the most common approaches:
+
+Full Fine-Tuning:
+- All the parameters of the model are updated during training.
+- Offers the highest flexibility and potential accuracy.
+- Very compute-intensive and memory-hungry.
+- Best used in research labs or large organizations.
+
+Parameter-Efficient Fine-Tuning (PEFT):
+- Only a small portion of the model’s parameters are updated.
+- Requires much less compute and can be done on consumer GPUs.
+- Popular methods include:
+
+LoRA (Low-Rank Adaptation):
+- Introduces small trainable adapter layers in attention modules.
+- Keeps the base model frozen while fine-tuning just a few million parameters.
+- Common in low-resource settings and works well with quantized models (e.g., QLoRA).
+
+Adapter Tuning:
+- Adds small neural networks (adapters) between transformer layers.
+- Allows specialization without modifying the original weights.
+
+Prefix Tuning:
+- Prepends trainable vectors (prefixes) to each layer's input.
+- Efficient and useful for control or multi-task setups.
+
+Instruction Tuning:
+- Fine-tuning the model to better follow human instructions.
+- Trained on pairs like: Instruction → Expected Response.
+- Forms the basis for models like FLAN-T5 or InstructGPT.
+
+Domain-Specific Fine-Tuning:
+- Trains the model on specialized content (e.g., legal, medical, finance).
+- Helps models perform better on domain-specific tasks.
+
+Multi-Task Fine-Tuning:
+- Fine-tunes on multiple tasks at once (e.g., summarization + question answering).
+- Improves generalization and robustness.
+
+RLHF (Reinforcement Learning with Human Feedback):
+- Advanced alignment method used after instruction tuning.
+- Includes reward modeling and reinforcement learning (PPO).
+- Powers models like ChatGPT and Claude to be more helpful and safe.
+
+Summary:
+- Full fine-tuning gives full control but is expensive.
+- PEFT methods like LoRA and Adapters are more practical for most users.
+- Instruction tuning and domain tuning shape model behavior and expertise.
+- RLHF is used for aligning models with human preferences.
+
+⸻
+
+How LoRA Works (with Math Explanation)
+
+⸻
+
+Matrix Decomposition View of LoRA
+
+LoRA is based on the idea of **matrix decomposition**, specifically **low-rank approximation**.
+
+In traditional fine-tuning:
+- You update a large matrix W₀ (e.g., 1024 × 1024)
+
+In LoRA:
+- You approximate the update ΔW using two much smaller matrices B and A:
+  - ΔW = B · A
+
+This is equivalent to **low-rank decomposition** in linear algebra, where a large matrix is approximated by the product of two lower-dimensional matrices.
+
+Visual Example:
+
+Suppose W₀ is 4 × 4:
+
+    W₀ =  | 1.0  0.5  0.2  0.1 |
+          | 0.5  1.0  0.3  0.2 |
+          | 0.2  0.3  1.0  0.4 |
+          | 0.1  0.2  0.4  1.0 |
+
+Instead of learning a full ΔW (4×4 = 16 values), we learn:
+    
+    A =  | 0.1  0.2  0.3  0.4 |
+         | 0.5  0.6  0.7  0.8 |    (2 × 4)
+
+    B =  | 0.9  1.0 |
+         | 0.8  0.7 |
+         | 0.6  0.5 |
+         | 0.4  0.3 |    (4 × 2)
+
+	
+
+
+Then:
+
+    ΔW = B · A    → shape (4×4)
+
+This low-rank decomposition captures key patterns while using fewer trainable parameters.
+
+Key Point:
+- This is **not a random trick** — it's grounded in mathematical principles from linear algebra.
+- It works well in practice because many weight updates in deep networks can be approximated with low-rank structures.
+
+LoRA (Low-Rank Adaptation) is a technique that allows efficient fine-tuning of large models by injecting small trainable matrices into the model's architecture, typically the attention layers. The key idea is to freeze the original model weights and only train these added matrices.
+
+In standard transformers, a linear layer is represented as:
+- y = W₀ · x
+
+Where:
+- W₀ is the original pretrained weight matrix
+- x is the input
+
+Instead of fine-tuning W₀ directly, LoRA defines a new weight matrix:
+- W = W₀ + ΔW
+
+And instead of learning ΔW directly (which is large), LoRA approximates it using two smaller matrices A and B:
+- ΔW = B · A
+
+So the updated transformation becomes:
+- y = (W₀ + B · A) · x
+- Or equivalently: y = W₀ · x + B · (A · x)
+
+Only A and B are trainable. W₀ remains frozen. This greatly reduces the number of trainable parameters.
+
+Example:
+- Suppose W₀ is 1024 × 1024 (over 1 million parameters)
+- Choose LoRA rank r = 8
+- A is 8 × 1024, B is 1024 × 8 → Only 16,384 parameters trained
+
+Alternate Notation:
+Some sources express this using summation:
+- W = W₀ + ∑(Bᵢ · Aᵢ)
+
+This just means multiple LoRA modules can be applied (e.g., to different heads or layers). If only one LoRA module is used, it simplifies to:
+- W = W₀ + B · A
+
+This is mathematically equivalent to the form shown above.
+
+Summary:
+- LoRA replaces expensive full fine-tuning with a low-rank update
+- It reduces memory and compute cost
+- It is compatible with quantized models (e.g., QLoRA)
+
+⸻
+
+LoRA Rank Explained
+
+In LoRA, the "rank" (denoted as r) is a hyperparameter that controls the size of the trainable low-rank matrices A and B, which are used to approximate the weight update ΔW in the model.
+
+Mathematically:
+- ΔW = B · A
+- A has shape [r, d] (down-projection)
+- B has shape [d, r] (up-projection)
+- So ΔW has shape [d, d], matching the original weight matrix W₀
+
+Why Rank Matters:
+- A smaller rank (e.g., r = 4 or 8) drastically reduces the number of trainable parameters and memory use.
+- A larger rank (e.g., r = 64 or 128) offers more expressive power but uses more resources.
+- Choosing the right rank is a trade-off between efficiency and performance.
+
+Example:
+If W₀ is 1024 × 1024 (1,048,576 parameters), and you use r = 8:
+- A = [8 × 1024], B = [1024 × 8]
+- Total trainable parameters = 16,384
+- This is ~1.6% of the original size.
+
+Typical values for r:
+- QLoRA models often use ranks like 4, 8, or 16.
+- r = d would be equivalent to full-rank fine-tuning, which defeats LoRA's purpose.
+
+Summary:
+- The rank determines how large and expressive the LoRA adaptation is.
+- Lower ranks = faster and smaller
+- Higher ranks = more flexible but costlier

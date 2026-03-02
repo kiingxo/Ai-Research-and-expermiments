@@ -1,0 +1,194 @@
+🗓️ Saturday 26th July
+------------------------
+
+Topic: Revisiting Introduction to Fine-Tuning
+------------------------------------------------
+
+What is Fine-Tuning?
+-------------------------
+Fine-tuning an LLM customizes its behavior, enhances and injects new knowledge, and optimizes performance for specific domains or tasks.
+
+
+Fine-Tuning vs Pre-Training
+----------------------------
+
+Pre-Training Analogy
+---------------------
+Like teaching a child everything about the world — language, math, science, history — from scratch.
+
+Fine-Tuning Analogy
+--------------------
+Like teaching that same child how to do one job really well — e.g., become a lawyer, doctor, or customer support agent.
+
+
+Common Fine-Tuning Methods
+------------------------------
+
+	•	SFT (Supervised Fine-Tuning) — Task-specific labeled data
+	•	LoRA / QLoRA — Low-rank adaptation, lightweight fine-tuning
+	•	PEFT — Parameter-Efficient Fine-Tuning (only updates a small subset of model weights)
+	•	Instruction Fine-Tuning — Teaches models to better follow human-written instructions
+
+When Should You Fine-Tune?
+------------------------------------
+	•	You have domain-specific data (e.g. medical, legal, financial)
+	•	You want better performance than prompting can give
+	•	You plan to deploy models offline
+	•	You need custom behavior (e.g., specific tone, formatting, task alignment)
+
+If you don’t have labeled data or just want better responses:
+	•	Prompt engineering — Improve your prompts, not the model
+	•	RAG (Retrieval-Augmented Generation) — Feed external knowledge in real time
+	•	Embeddings + vector search — Inject relevant context at inference time
+
+
+
+
+LoRA or QLoRA
+--------------
+
+Both are techniques used to fine-tune large language models efficiently, without updating the entire model (which would be expensive and slow).
+
+
+LoRA (Low-Rank Adaptation)
+---------------------------
+Fine-tunes just a few small matrices inside the model instead of the whole thing.
+
+
+	•	Saves time and memory
+	•	Uses 16-bit precision (fp16/bf16)  (still pretty fast)
+	•	Good for small-to-medium models
+	•	Can be run on consumer GPUs (like 12–24 GB VRAM....hard it works fine with colab too)
+
+
+
+ QLoRA (Quantized LoRA)
+ ---------------------
+ Takes LoRA and adds 4-bit quantization, making the model even smaller and lighter to train.
+	•	Great for very large models (like 33B, 70B, etc.)
+	•	Even more memory efficient than LoRA
+	•	Can run massive models on smaller GPUs (like 1x A100 or even consumer GPUs with ~24 GB)
+	•	But: it’s a bit trickier to set up, especially for beginners
+
+
+
+Will be starting with Llama 3.1 (8B)
+------------------------------------
+ill explain what parameters are 
+	•	“8B” = 8 billion parameters
+→ A parameter is like a “dial” in the model that adjusts how it understands language.
+→ More parameters = more knowledge and reasoning capacity (but also more compute/memory needed).
+
+
+
+Parameter vs modal size
+
+Precision        Storage per parameter       Model size for 8B params
+32-bit float       4 bytes                   8B × 4 = ~32 GB
+16-bit float	   2 bytes                   8B × 2 = ~16 GB
+4-bit Quantized	   0.5 bytes                 8B × 0.5 = ~4 GB
+
+
+
+
+Choosing the Right Model for Fine-Tuning
+-------------------------------------------
+
+1. Match Model to Use Case
+	•	Vision tasks → Use LLaMA 3.2 Vision
+	•	Code tasks → Use Qwen Coder 2.5
+	•	Always align model type with your dataset/task.
+
+2. Check Licensing & Requirements
+	•	Ensure compatibility with your system.
+	•	Review VRAM and compute requirements using provided guidelines.
+
+3. Evaluate Resources
+	•	Choose a model size that fits your VRAM, dataset size, and training budget.
+	•	Larger models need more storage and compute.
+
+4. Select the Model Version
+	•	Prefer the latest model for best performance.
+
+
+Dataset Guide for Fine-Tuning
+
+What is a Dataset?
+	•	A dataset is a collection of text data used to fine-tune or pretrain LLMs.
+	•	Text must be tokenizable to be useful — tokens are turned into embeddings the model learns from.
+
+Key Concepts
+	•	Chat Template: Defines how your data is structured (chat, instructions, etc.).
+	•	Tokenization: Converts text into tokens (subwords, words, characters) for model processing.
+
+
+Dataset Design Steps
+	1.	Define Purpose – What are you training the model to do? (e.g. Q&A, summarization, roleplay)
+	2.	Choose Output Style – What should the model generate? (text, JSON, code, language)
+	3.	Pick Data Source – Use CSVs, PDFs, websites, or Hugging Face datasets (e.g. ShareGPT).
+→ You can also generate synthetic data, but it must be high quality.
+
+ Common Data Formats
+	•	Raw Text Format (for CPT):
+	"text": "Pasta carbonara is a traditional Roman pasta dish..."
+
+	• Instruction Format (Alpaca style):
+			{
+		"instruction": "Summarize this text.",
+		"input": "Carbonara is made from...",
+		"output": "It's a Roman pasta dish made with..."
+		}
+
+    •	Conversation Format (ShareGPT style):
+				{
+			"conversations": [
+				{"from": "human", "value": "Help me make carbonara"},
+				{"from": "gpt", "value": "Do you want the traditional recipe?"}
+			]
+			}
+
+ 	•	ChatML Format (OpenAI / Hugging Face default):
+			{
+  "messages": [
+    {"role": "user", "content": "What is 1+1?"},
+    {"role": "assistant", "content": "It's 2!"}
+  ]
+}
+🧪 Unsloth Fine-Tuning Steps (from CodeLabs)
+--------------------------------------------
+
+These are the typical steps seen across all Unsloth notebooks when fine-tuning LLMs:
+
+1. **Install Dependencies**
+   ```bash
+   pip install -q unsloth datasets trl peft accelerate bitsandbytes
+   ```
+
+2. **Load the Base Model**
+   - Load your chosen model (e.g., LLaMA 3, Mistral, etc.) using `unsloth.load_model()` with appropriate configuration (quantized, 8-bit, etc.).
+
+3. **Prepare the Dataset**
+   - Load dataset using `datasets.load_dataset()`.
+   - Format the dataset into `ChatML`, `ShareGPT`, or `Alpaca` format depending on use case.
+   - Tokenize with the model’s tokenizer.
+
+4. **Apply Formatting / Template**
+   - Structure each sample into the correct prompt-response format using instruction-based templates or chat formats.
+
+5. **Set Training Arguments**
+   - Define `TrainingArguments` (batch size, learning rate, epochs, evaluation strategy, etc.).
+
+6. **Initialize Trainer**
+   - Use `SFTTrainer` from `trl` or `unsloth.get_trainer()` to set up the training loop.
+
+7. **Train the Model**
+   - Call `trainer.train()` to start training the model on the prepared dataset.
+
+8. **Save the Fine-Tuned Model**
+   - Save the model and tokenizer to a local directory or push to Hugging Face using `trainer.save_model()`.
+
+9. **Inference (optional)**
+   - Reload the model and tokenizer.
+   - Generate responses using `.generate()` with prompt inputs.
+
+📝 These steps stay consistent whether you're working on Alpaca-style instruction tuning or ShareGPT-style dialogues.

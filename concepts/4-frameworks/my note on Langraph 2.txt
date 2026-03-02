@@ -1,0 +1,283 @@
+## Example Use Cases
+- Multi-step customer support chatbot
+- AI research assistant with different tools for summarizing, searching, and analyzing
+- Automated document workflow with decision branches
+
+## Loops in Graphs
+LangGraph supports loops to enable repeated execution of certain nodes until a condition is met. This is useful for tasks like iterative refinement or polling.
+
+Example:
+```python
+from langgraph.graph import Node, Graph
+
+def check_condition(state):
+    # Continue looping if 'count' is less than 3
+    return state.get("count", 0) < 3
+
+def increment_counter(state):
+    count = state.get("count", 0) + 1
+    return {"count": count}
+
+graph = Graph()
+
+loop_node = Node(name="increment", func=increment_counter)
+condition_node = Node(name="check", func=check_condition)
+
+graph.add_node(loop_node)
+graph.add_node(condition_node)
+
+graph.add_edge(loop_node, condition_node)
+graph.add_edge(condition_node, loop_node, condition=True)  # Loop back if condition is True
+
+graph.set_entry_point("increment")
+```
+
+## Branching Logic
+Conditional edges allow the graph to branch based on state or LLM output, enabling dynamic workflows.
+
+Example:
+```python
+def decide_path(state):
+    if state.get("user_input") == "A":
+        return "path_a"
+    else:
+        return "path_b"
+
+decision_node = Node(name="decide", func=decide_path)
+path_a_node = Node(name="path_a", func=lambda s: {"result": "You chose A"})
+path_b_node = Node(name="path_b", func=lambda s: {"result": "You chose B"})
+
+graph.add_node(decision_node)
+graph.add_node(path_a_node)
+graph.add_node(path_b_node)
+
+graph.add_edge(decision_node, path_a_node, condition=lambda s: s.get("result") == "path_a")
+graph.add_edge(decision_node, path_b_node, condition=lambda s: s.get("result") == "path_b")
+
+graph.set_entry_point("decide")
+```
+
+## Parallel Execution
+LangGraph can execute multiple nodes in parallel to improve efficiency, then merge their results for subsequent processing.
+
+Example:
+```python
+from langgraph.graph import ParallelNode
+
+def fetch_data_1(state):
+    return {"data1": "Result from source 1"}
+
+def fetch_data_2(state):
+    return {"data2": "Result from source 2"}
+
+fetch_node_1 = Node(name="fetch1", func=fetch_data_1)
+fetch_node_2 = Node(name="fetch2", func=fetch_data_2)
+
+parallel_node = ParallelNode(name="fetch_parallel", nodes=[fetch_node_1, fetch_node_2])
+
+def merge_results(state):
+    data1 = state.get("data1")
+    data2 = state.get("data2")
+    return {"combined": f"{data1} + {data2}"}
+
+merge_node = Node(name="merge", func=merge_results)
+
+graph.add_node(parallel_node)
+graph.add_node(merge_node)
+
+graph.add_edge(parallel_node, merge_node)
+
+graph.set_entry_point("fetch_parallel")
+```
+
+## Error Handling
+LangGraph supports error handling strategies such as retries and fallbacks to build robust workflows.
+
+- **Retries**: Automatically retry a node on failure up to a specified number of attempts.
+- **Fallbacks**: Define alternative nodes to execute if a node fails.
+
+Example:
+```python
+def unreliable_task(state):
+    # Simulate a task that may fail
+    import random
+    if random.random() < 0.5:
+        raise Exception("Random failure")
+    return {"status": "success"}
+
+primary_node = Node(name="primary", func=unreliable_task, retries=3)
+fallback_node = Node(name="fallback", func=lambda s: {"status": "fallback executed"})
+
+graph.add_node(primary_node)
+graph.add_node(fallback_node)
+
+graph.add_edge(primary_node, fallback_node, on_error=True)  # Go to fallback if primary fails
+
+graph.set_entry_point("primary")
+```
+
+## Advanced Example: Research Assistant
+This example demonstrates a research assistant that queries documents, summarizes results, and makes recommendations.
+
+```python
+def query_documents(state):
+    query = state.get("query")
+    # Simulate document retrieval
+    docs = ["Doc1 content", "Doc2 content"]
+    return {"documents": docs}
+
+def summarize_docs(state):
+    docs = state.get("documents", [])
+    summary = " ".join(docs)[:100]  # Simple concatenation as summary
+    return {"summary": summary}
+
+def recommend_action(state):
+    summary = state.get("summary", "")
+    if "important" in summary:
+        return {"recommendation": "Schedule follow-up meeting"}
+    else:
+        return {"recommendation": "No action needed"}
+
+graph = Graph()
+
+query_node = Node(name="query_documents", func=query_documents)
+summarize_node = Node(name="summarize_docs", func=summarize_docs)
+recommend_node = Node(name="recommend_action", func=recommend_action)
+
+graph.add_node(query_node)
+graph.add_node(summarize_node)
+graph.add_node(recommend_node)
+
+graph.add_edge(query_node, summarize_node)
+graph.add_edge(summarize_node, recommend_node)
+
+graph.set_entry_point("query_documents")
+```
+
+## Persistent Memory
+LangGraph supports maintaining long-term state across multiple runs to enable features like conversation history or context retention.
+
+Example:
+```python
+from langgraph.graph import Graph, Node, PersistentMemory
+
+memory = PersistentMemory(storage_path="conversation_history.json")
+
+def update_history(state):
+    history = memory.load() or []
+    user_input = state.get("user_input")
+    history.append(user_input)
+    memory.save(history)
+    return {"history": history}
+
+graph = Graph(memory=memory)
+
+history_node = Node(name="update_history", func=update_history)
+
+graph.add_node(history_node)
+graph.set_entry_point("update_history")
+
+# On each run, the conversation history is loaded, updated, and saved persistently.
+```
+
+## Subgraphs / Modular Design
+Encapsulate a group of nodes into a reusable subgraph to promote modular design and simplify complex workflows.
+
+Example:
+```python
+from langgraph.graph import Graph, Node, Subgraph
+
+def preprocess(state):
+    # preprocessing logic
+    return {"preprocessed": True}
+
+def postprocess(state):
+    # postprocessing logic
+    return {"postprocessed": True}
+
+subgraph = Subgraph(name="pre_post_process")
+pre_node = Node(name="preprocess", func=preprocess)
+post_node = Node(name="postprocess", func=postprocess)
+
+subgraph.add_node(pre_node)
+subgraph.add_node(post_node)
+subgraph.add_edge(pre_node, post_node)
+subgraph.set_entry_point("preprocess")
+
+main_graph = Graph()
+main_graph.add_subgraph(subgraph)
+
+# The subgraph can be executed as a single node within the main graph, promoting reuse.
+```
+
+## Human-in-the-Loop
+LangGraph can pause execution at specific nodes to wait for human feedback before continuing the workflow.
+
+Example:
+```python
+from langgraph.graph import Node, Graph
+
+def request_feedback(state):
+    # Simulate sending a prompt to a human and waiting for response
+    print("Please provide feedback:")
+    feedback = input()
+    return {"feedback": feedback}
+
+def process_feedback(state):
+    feedback = state.get("feedback")
+    if feedback.lower() == "approve":
+        return {"approved": True}
+    else:
+        return {"approved": False}
+
+graph = Graph()
+
+feedback_node = Node(name="request_feedback", func=request_feedback)
+process_node = Node(name="process_feedback", func=process_feedback)
+
+graph.add_node(feedback_node)
+graph.add_node(process_node)
+graph.add_edge(feedback_node, process_node)
+
+graph.set_entry_point("request_feedback")
+```
+
+## Streaming Outputs
+LangGraph supports streaming outputs from nodes, allowing real-time user feedback as LLM responses are generated.
+
+Example:
+```python
+from langgraph.graph import Node, Graph
+
+def stream_response(state, stream_callback):
+    # Simulated streaming of response chunks
+    chunks = ["Hello", ", ", "this ", "is ", "a ", "streamed ", "response."]
+    for chunk in chunks:
+        stream_callback(chunk)
+    return {"complete": True}
+
+graph = Graph()
+
+stream_node = Node(name="stream_response", func=stream_response, stream=True)
+
+graph.add_node(stream_node)
+graph.set_entry_point("stream_response")
+
+# The stream_callback function is called with each chunk to update UI or logs in real-time.
+```
+
+## Monitoring & Logging
+LangGraph provides built-in support for capturing execution logs and visualizing graph progress to aid debugging and performance monitoring.
+
+- Logs include node start/end times, errors, and state changes.
+- Visualization tools can display execution paths and node statuses.
+- Integration with external monitoring systems is supported via callbacks.
+
+Example usage:
+```python
+graph.enable_logging(log_file="execution.log")
+graph.on_node_start = lambda node: print(f"Starting node {node.name}")
+graph.on_node_end = lambda node: print(f"Finished node {node.name}")
+```
+
+This allows developers to track workflow execution and quickly identify bottlenecks or failures.

@@ -1,0 +1,38 @@
+🗓️ Tuesday 29th July
+------------------------
+I'll be referencing work done in the Llama3_(8B)_finetuning.ipynb notbook 
+
+ How to Finetune Llama-3 and Use In Ollama
+
+(tutorial colab:https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/Llama3_(8B)-Ollama.ipynb)
+
+what is unisloth
+-----------------
+I’m using Unsloth to fine-tune LLMs like LLaMA 3, Mistral, Phi-3, and Gemma. It speeds up training by 2x, reduces memory usage by around 70%, and still maintains the same accuracy. For this, I’m working in Google Colab since it gives access to a free GPU. Their official notebooks are available to help me get started.
+
+Unsloth is a library that simplifies and accelerates the process of fine-tuning large language models (LLMs) such as LLaMA 3, Mistral, Phi-3, and Gemma. It achieves this by optimizing memory usage and training speed. Specifically, Unsloth can reduce memory consumption by up to 70%, allowing larger models to be trained on smaller GPUs like the free T4 available in Google Colab. Additionally, it speeds up training by approximately 2x while still maintaining model accuracy. This makes it ideal for researchers and hobbyists who want to experiment with fine-tuning without needing expensive hardware.
+
+	•	Each cell has a  play button. Run all cells in order, don’t skip any.
+	•	If something fails, rerun that specific cell or press Ctrl + Enter.
+	•	You can also click Runtime > Run all to execute everything (skips customization).
+	•	Use the Connect/Reconnect button at the top to see your current GPU (usually a T4).
+
+Overfitting happens when a machine learning model becomes too specialized in the training data. Instead of learning useful patterns that can apply broadly, it memorizes every detail—even the irrelevant or noisy parts.
+
+🔍 Analogy:
+Think of it like a student who memorizes the answers to practice questions instead of understanding the concepts. They may do well on the exact questions they studied (training data), but struggle on the real test with new questions (new data).
+
+✅ Good Training: Learns the *concept* of a cat—fur, shape, ears, etc.
+❌ Overfitting: Memorizes *one specific* image of a cat—its collar, background, lighting.
+
+💡 Tip: To reduce overfitting, use techniques like dropout, data augmentation, or early stopping.
+
+⸻
+
+Example:
+
+Imagine you’re training an AI to recognize cats in pictures.
+	•	✅ If your model learns general patterns of cats (e.g., whiskers, fur, ears), it will perform well on new cat pictures it hasn’t seen.
+	•	❌ But if it memorizes specific training images (e.g., background, exact lighting, cat’s collar), it might fail to recognize different cat pictures later.
+
+This is overfitting: doing great on training data but poorly on new data.
