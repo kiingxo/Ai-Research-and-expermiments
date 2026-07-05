@@ -1,220 +1,189 @@
-# AI Research & Experiments 🧪
+# AI Research and Experiments
 
-**A comprehensive personal laboratory for AI research, machine learning exploration, and cutting-edge experimentation with LLMs, NLP, and advanced training techniques.**
+I started this repository while I was learning how language models work. The
+older folders contain my notes on transformers, NLP, fine tuning, local models,
+and LangGraph. I still keep them because they show the foundation, but they no
+longer represent most of my work.
 
----
+Over the last few months I have been building complete agent systems at
+[Blueprint Labs](https://blueprintlabsai.tech). That work changed the questions
+I care about. I am now less interested in making a model produce one impressive
+answer and more interested in what happens when a model has to work continuously
+with live data, tools, state, users, failures, and measurable outcomes.
 
-## 📚 Learning Path
+This repository is where I document that engineering and research process. The
+main product code lives in separate repositories. What belongs here is the
+reasoning behind the systems, the experiments that shaped them, and the lessons
+I do not want to lose.
 
-Start here and follow the numbered path for a structured learning experience:
+## What I Am Building
 
-1. **[1. LLM Fundamentals](./concepts/1-llm-fundamentals/)** - Core concepts, architecture, transformers
-2. **[2. NLP Fundamentals](./concepts/2-nlp-fundamentals/)** - NLP tasks, datasets, and APIs
-3. **[3. Training Techniques](./concepts/3-training-techniques/)** - Fine-tuning, RLHF, optimization
-4. **[4. Frameworks & Tools](./concepts/4-frameworks/)** - Production deployment, LangGraph, Ollama
+| Project | What I am investigating | Status |
+| --- | --- | --- |
+| [Leverage](./projects/leverage/) | Multimodal market reasoning, decision support, agent evaluation, and memory | Private beta |
+| [Apex AI](./projects/apex-ai/) | Real time event processing, fast decision pipelines, and deterministic risk controls | Active production research |
+| [Playbook Memory](./experiments/playbook-memory/) | Persistent agent knowledge that cannot promote itself without evidence | Shadow evaluation |
+| [Production Agent Systems](./concepts/5-agent-systems/) | Context, tools, state, guardrails, observability, and human control | Ongoing notes |
 
-Then explore **[Projects](./projects/)** for real-world implementations.
+## Leverage
 
----
+Leverage is the system I have spent most of my recent time on. It started as a
+Chrome extension that could send a TradingView screenshot to a model. It now has
+several distinct workflows:
 
-## 🗂️ Repository Structure
+* **Pulse** scans a selected chart periodically and looks for setups.
+* **Co-Pilot** is a chart aware workspace where a trader can discuss a plan,
+  challenge the analysis, and ask the system to inspect new chart development.
+* **Market Map** keeps Daily and 4H structure separate from the execution chart.
+* **Execution Desk** provides an optional second opinion on an existing setup.
+* **Trade Monitor** follows a trade after entry and combines objective price
+  events with model based management.
+* **The Floor** makes the system visible through a live operational interface.
 
-```
-Ai-Research-and-expermiments/
+Leverage also includes Telegram delivery, news and calendar context, journals,
+P&L cards, paper setup tracking, chart evidence, outcome diagnostics, and a
+learning system that currently runs without changing live prompts.
+
+The difficult work has not been adding more instructions to the model. It has
+been deciding which source is authoritative, proving whether a target was
+actually reached, keeping old chart candles from becoming new events, separating
+paper outcomes from trades a user took, and preserving enough evidence to debug
+a bad call later.
+
+[Read the Leverage engineering dossier](./projects/leverage/)
+
+## Apex AI
+
+Apex AI came before Leverage. It observes fast Solana migration markets and
+builds state from live events before making a decision. It uses stream
+processing, deterministic filters, asynchronous inspection, Telegram delivery,
+and post call outcome tracking.
+
+Apex taught me an important systems lesson: the slow intelligence cannot block
+the hot path. Event collection and hard validation have to keep moving while AI
+inspection, enrichment, and external delivery happen around them.
+
+[Read the Apex AI engineering dossier](./projects/apex-ai/)
+
+## The Questions Behind the Work
+
+### How should an agent see?
+
+Leverage receives chart images, structured prices, market maps, news, economic
+events, session state, and prior analysis. More context is not automatically
+better. Every source needs an asset, timestamp, freshness state, and clear role.
+
+### What should the model control?
+
+The model can interpret structure, compare explanations, and suggest a plan. It
+should not own authentication, TP and SL detection, risk arithmetic, event
+idempotency, user permissions, or database integrity. Those need reproducible
+answers.
+
+### How do I know whether an agent is improving?
+
+A good explanation is not the same as a good decision. The systems now record
+analysis episodes, prompt and model versions, paper and taken cohorts, trade
+events, ambiguous outcomes, realized R, MFE, MAE, and later results.
+
+### Can an agent learn without fine tuning?
+
+Playbook Memory tests whether completed episodes can become reusable knowledge.
+The important part is not generating lessons. It is controlling evidence,
+contradictions, scope, permissions, versioning, and promotion. Retrieval remains
+in shadow mode until it proves useful prospectively.
+
+### What does useful collaboration look like?
+
+Pulse is designed for automation. Co-Pilot is designed for discussion. A trader
+should be able to disagree, point at a drawing, correct the model, or ignore a
+plan. The interface is part of that relationship, not decoration around the
+model.
+
+## Engineering Principles I Keep Returning To
+
+### Mechanical truth stays in code
+
+The current chart can inform a decision, but a trusted post entry event should
+decide whether TP or SL was crossed. The same rule applies to identity,
+permissions, retries, and risk calculations.
+
+### Paper and taken trades are different datasets
+
+A setup may work even when nobody takes it. A user may also close a trade
+differently from the published plan. Combining both into one win rate makes the
+result difficult to interpret.
+
+### Ambiguity is a valid result
+
+If a polling gap could have crossed both stop and target, I would rather store
+`ambiguous` than invent the order of events. Ambiguous cases are excluded from
+learning.
+
+### Memory should earn influence
+
+One trade can propose a candidate lesson. It cannot activate that lesson. A
+market rule needs repeated evidence, contradiction checks, and human approval
+before it can affect another analysis.
+
+### APIs and MCP solve different problems
+
+Direct integrations are better for predictable ingestion and mechanical work.
+Model selected tools make sense when dynamic investigation is useful. MCP may
+eventually help Co-Pilot search for missing news or retrieve specialised
+context, but it is not a replacement for the existing backend.
+
+## Repository Structure
+
+```text
+.
 ├── concepts/
-│   ├── 1-llm-fundamentals/          # Transformer architecture, scaling
-│   │   └── README.md
-│   │
-│   ├── 2-nlp-fundamentals/          # NLP tasks and datasets
-│   │   ├── README.md
-│   │   └── apis/                    # API guides for data collection
-│   │       ├── social_media_apis.md
-│   │       ├── news_content_apis.md
-│   │       ├── public_datasets.md
-│   │       ├── speech_apis.md
-│   │       ├── specialized_apis.md
-│   │       └── annotation_services.md
-│   │
-│   ├── 3-training-techniques/       # Fine-tuning, RLHF, optimization
-│   │   ├── README.md
-│   │   ├── notebooks/              # Hands-on training examples
-│   │   │   ├── ascii_art_completion_finetuning.ipynb
-│   │   │   ├── conversation_finetuning_paul_graham.ipynb
-│   │   │   └── Llama3_(8B)_Ollama.ipynb
-│   │   └── *.txt                  # Training notes and guides
-│   │
-│   └── 4-frameworks/               # Production tools and frameworks
-│       ├── README.md
-│       └── *.txt                  # LangGraph, Ollama notes
-│
-├── projects/                        # Real-world implementations
-│   ├── README.md
-│   ├── ascii_art_completion_finetuning.ipynb
-│   └── conversation_finetuning_paul_graham.ipynb
-│
-├── experiments/                     # Research experiments and prototypes
-│   ├── Dawid-Skene-algorithm.ipynb
-│   └── (other experimental work)
-│
-├── data/                            # Datasets and data processing
-│   └── README.md
-│
-├── models/                          # Model checkpoints and configs
-│   └── README.md
-│
-├── scripts/                         # Utility and automation scripts
-│   └── README.md
-│
-├── learning-notes/                  # Raw notes and observations
-│   └── (personal notes)
-│
-└── README.md (you are here)
+│   ├── 1-llm-fundamentals/
+│   ├── 2-nlp-fundamentals/
+│   ├── 3-training-techniques/
+│   ├── 4-frameworks/
+│   └── 5-agent-systems/
+├── projects/
+│   ├── leverage/
+│   ├── apex-ai/
+│   └── earlier fine tuning notebooks
+├── experiments/
+│   ├── playbook-memory/
+│   └── Dawid-Skene-algorithm.ipynb
+├── data/
+├── models/
+└── scripts/
 ```
 
----
+## Learning Path
 
-## 🚀 Quick Navigation
+The original material is still available in order:
 
-### For Beginners
-Start with **[1. LLM Fundamentals](./concepts/1-llm-fundamentals/README.md)** to build a strong foundation
+1. [LLM fundamentals](./concepts/1-llm-fundamentals/)
+2. [NLP fundamentals and data APIs](./concepts/2-nlp-fundamentals/)
+3. [Fine tuning and training techniques](./concepts/3-training-techniques/)
+4. [Frameworks and local inference](./concepts/4-frameworks/)
+5. [Production agent systems](./concepts/5-agent-systems/)
 
-### For Dataset Collection
-Head to **[2. NLP Fundamentals → APIs](./concepts/2-nlp-fundamentals/apis/)** to find data sources
+## Current Direction
 
-### For Implementation
-Check **[3. Training Techniques](./concepts/3-training-techniques/README.md)** for hands-on notebooks
+The next stage of the work is mostly about measurement:
 
-### For Deployment
-See **[4. Frameworks](./concepts/4-frameworks/README.md)** for production tools
+* Collect clean prospective data for Pulse and Co-Pilot.
+* Measure setup performance by asset, setup family, regime, and prompt version.
+* Finish evaluating shadow memory before any live injection.
+* Explore read only tools for selective news and market research.
+* Build Leverage Live as a public view of paper activity without exposing
+  private user data.
+* Investigate specialised model evaluation and eventual fine tuning without
+  treating user behaviour as ground truth.
 
-### For Examples
-Browse **[Projects](./projects/README.md)** for real-world implementations
+## Status and Scope
 
----
+This is an active research repository. Some systems are deployed, some are in
+private beta, and some deliberately run in shadow mode. Trading related work is
+experimental decision support research. It is not financial advice, and I do
+not treat historical outcomes as a promise of future performance.
 
-## 💡 Key Highlights
-
-### 📊 Comprehensive API Guide
-Complete reference for collecting NLP datasets:
-- Social media (Twitter, Reddit, YouTube)
-- News and academic sources (NewsAPI, PubMed, ArXiv)
-- Pre-built datasets (Hugging Face, Kaggle)
-- Speech and audio (Common Voice, LibriSpeech)
-- Domain-specific (Finance, Medical, Legal)
-- Annotation services (Labelbox, Scale AI, MTurk)
-
-### 🎓 Structured Learning
-4-part curriculum designed for progression:
-1. Understand foundational concepts
-2. Learn NLP applications and data
-3. Implement training workflows
-4. Deploy production systems
-
-### 🔬 Hands-on Projects
-Real implementations including:
-- ASCII art generation through fine-tuning
-- Conversational AI from essays
-- Local model inference (Ollama)
-
-### 📚 Quality Documentation
-Every folder includes README with:
-- Clear learning objectives
-- Code examples and snippets
-- Resource links
-- Next steps and navigation
-
----
-
-## 🛠️ Development Setup
-
-### Prerequisites
-- **Python 3.8+** with virtual environment
-- **Jupyter Lab/Notebook** for interactive work
-- **Git** for version control
-- **GPU** (recommended for training)
-
-### Getting Started
-```bash
-# Clone the repository
-git clone <repo-url>
-cd Ai-Research-and-expermiments
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install jupyter transformers torch
-```
-
----
-
-## 📊 Standards & Best Practices
-
-### Organization
-- **Numbered concepts folder**: Follow learning path 1 → 2 → 3 → 4
-- **README in each section**: Provides context and navigation
-- **Clear file naming**: Avoid "my note on..." pattern
-- **Separated concerns**: Theory, implementation, projects, utilities
-
-### Documentation
-- Every notebook includes context and objectives
-- Code includes comments explaining key steps
-- Results are documented with metrics
-- Failed experiments are saved for learning
-
-### Reproducibility
-- Version-controlled dependencies
-- Clear hyperparameter documentation
-- Seeded random states for experiments
-- Artifact and checkpoint tracking
-- Regular progress updates and learning summaries
-
----
-
-
-**Experiment Fearlessly** → Embrace failure as a learning mechanism
-
-**Document Everything** → Future you will thank present you
-
-**Share Knowledge** → Science advances through collaboration
-
-**Stay Curious** → The best discoveries come from unexpected directions
-
----
-
-### Exploration Path
-1. **Explore `concepts/`** for theoretical grounding
-2. **Check `experiments/`** for current research directions  
-3. **Browse `notebooks/`** for quick implementations
-4. **Use `scripts/`** to accelerate your workflow
-
-### Recommended Workflow
-- Start new concepts in `notebooks/` for rapid prototyping
-- Graduate promising ideas to `experiments/` with proper structure
-- Extract reusable code into `scripts/` for future projects
-- Document learnings thoroughly in each folder's `notes.md`
-
----
-
-## 🔮 Future Directions
-
-- Multimodal learning and cross-modal transfer
-- Continual learning and catastrophic forgetting
-- Interpretability and mechanistic understanding
-- AI safety and alignment research
-- Edge deployment and efficiency optimization
-
----
-
-## ⚠️ Laboratory Notice
-
-**This is an active research environment**
-
-Expect experimental code, evolving ideas, and iterative improvements. Some paths lead to dead ends—that's the nature of research. Every failed experiment teaches us something valuable about what doesn't work.
-
-### Current Status
-- 📁 **Folders Created**: All core directories established
-- 🔄 **Active Development**: Ongoing experiments and learning
-- 📝 **Documentation**: Continuously improving organization
-
+I want this repository to preserve the real process. That includes good ideas,
+bad assumptions, implementation mistakes, and the changes that followed them.

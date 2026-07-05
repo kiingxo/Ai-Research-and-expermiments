@@ -1,70 +1,51 @@
 # Projects
 
-Real-world implementations and examples of AI research applications.
+This directory documents systems that moved beyond isolated notebooks into
+end-to-end products or sustained engineering research.
 
-## Project Structure
+## Active Systems
 
-Each project should include:
-- `README.md` - Project description and usage
-- `.ipynb` - Jupyter notebooks with implementation
-- `config.yaml` - Configuration files
-- `data/` - Sample data
-- `results/` - Output and analysis
+### [Leverage](./leverage/)
 
-## Current Projects
+A multimodal, browser-native market decision workstation combining live chart
+images, structured market context, deterministic trade tracking, human-in-the-
+loop analysis, and shadow-mode agent learning.
 
-### ASCII Art Completion Fine-tuning
-- **File**: `ascii_art_completion_finetuning.ipynb`
-- **Goal**: Fine-tune a model to generate ASCII art
-- **Techniques**: Fine-tuning, creative generation
-- **Status**: Active
+**Status:** active private beta and evaluation.
 
-### Paul Graham Conversational Fine-tuning
-- **File**: `conversation_finetuning_paul_graham.ipynb`
-- **Goal**: Create a conversational AI based on Paul Graham's essays
-- **Techniques**: Instruction fine-tuning, dialogue generation
-- **Status**: Active
+### [Apex AI](./apex-ai/)
 
-## Coming Soon
+A real-time event agent for Solana migration markets, built around streaming
+state, deterministic decision gates, asynchronous AI inspection, alerts, and
+post-call measurement.
 
-- [ ] Question-answering system
-- [ ] Sentiment analysis pipeline
-- [ ] Machine translation
-- [ ] Named entity recognition
-- [ ] Text summarization
+**Status:** active production research.
 
-## How to Add a Project
+## Earlier Model Experiments
 
-1. Create a folder: `projects/your-project-name/`
-2. Add a `README.md` with:
-   - Project description
-   - Dataset information
-   - Model architecture
-   - Results and metrics
-3. Add implementation:
-   - `.ipynb` notebooks
-   - Python scripts
-   - Configuration files
-4. Document results:
-   - Metrics
-   - Comparisons
-   - Lessons learned
+### ASCII Art Completion Fine Tuning
 
-## Tips for Project Organization
+- [Notebook](./ascii_art_completion_finetuning.ipynb)
+- Fine-tuning experiment for structured creative completion.
+- Important as an early exercise in dataset construction and specialised model
+  behaviour.
 
-- Keep data separate from code
-- Version your experiments
-- Document hyperparameters
-- Save model checkpoints
-- Track metrics and loss curves
-- Write README with reproducibility instructions
+### Paul Graham Conversational Fine Tuning
 
-## Sharing Results
+- [Notebook](./conversation_finetuning_paul_graham.ipynb)
+- Experiment in turning a bounded essay corpus into conversational training
+  examples.
+- Raised early questions about imitation, source quality, and whether
+  fine-tuning is necessary when retrieval may be more appropriate.
 
-For each project, include:
-- Training curves and loss plots
-- Evaluation metrics
-- Sample outputs
-- Inference time and memory usage
-- Lessons learned
-- Future improvements
+## Documentation Standard
+
+Every substantial project dossier should state:
+
+- The problem and research question.
+- The system boundary and architecture.
+- What is model-driven and what is deterministic.
+- The data and evaluation method.
+- Known failures and limitations.
+- Current maturity: experiment, shadow, beta, or deployed.
+- The next falsifiable question, not only a feature wish list.

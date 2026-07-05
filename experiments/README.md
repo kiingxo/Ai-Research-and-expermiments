@@ -1,196 +1,50 @@
 # Experiments
 
-Directory for research experiments, prototypes, and investigations.
-
-## What Goes Here
-
-- **Full experimental pipelines** with clear methodology
-- **Novel technique validation** and performance analysis
-- **Ablation studies** and baseline comparisons
-- **Proof-of-concept** implementations
-- **Research prototypes** before production
-
-## Experiment Structure
-
-Each experiment should include:
-
-```
-experiment-name/
-├── README.md           # Experiment description and results
-├── notebook.ipynb      # Implementation
-├── results/
-│   ├── metrics.json    # Quantitative results
-│   ├── figures/        # Plots and visualizations
-│   └── analysis.md     # Detailed findings
-├── config.yaml         # Hyperparameters
-└── data/              # Experiment-specific data
-```
-
-## Experiment Naming
-
-Use descriptive names with dates:
-```
-2024-02-01-llm-scaling-laws
-2024-02-05-qlora-vs-lora-comparison
-2024-02-10-prompt-engineering-survey
-```
+This directory contains work that is testing a research question but is not yet
+trusted as production behaviour.
 
 ## Current Experiments
 
-### Dawid-Skene Algorithm
-- **File**: `Dawid-Skene-algorithm.ipynb`
-- **Description**: Implementation of the Dawid-Skene algorithm for learning from crowdsourced labels
-- **Status**: In progress
+### [Playbook Memory](./playbook-memory/)
 
-## Experiment Template
+Can an agent build reusable knowledge from its own episodes without immediately
+feeding unverified lessons back into future decisions?
 
-When starting a new experiment, create `README.md`:
+The system captures episodes, outcomes, candidates, evidence, and retrievals.
+Everything currently runs in shadow mode: retrieval is logged and evaluated but
+cannot alter prompts.
 
-```markdown
-# Experiment: [Title]
+### Dawid-Skene Label Aggregation
 
-## Objective
-What hypothesis are you testing?
-
-## Methodology
-- Dataset(s) used
-- Model architecture
-- Training procedure
-- Evaluation metrics
-
-## Hyperparameters
-- Learning rate: 
-- Batch size:
-- Epochs:
-- Optimizer:
-
-## Results
-- Final metrics
-- Key findings
-- Visualizations
-
-## Findings
-Detailed analysis of results
-
-## Limitations
-- Known issues
-- Scope limitations
-- Future work
-
-## Code & Reproduction
-How to reproduce this experiment
-
-## References
-- Papers cited
-- Related work
-```
-
-## Best Practices
-
-### Documentation
-- Write objective clearly before starting
-- Document all hyperparameters
-- Track results as you go
-- Explain surprising findings
-
-### Reproducibility
-- Fix random seeds
-- Version all dependencies
-- Save configurations
-- Document data preprocessing
-
-### Visualization
-- Create loss curves
-- Plot metric evolution
-- Show attention visualizations
-- Visualize predictions
-
-### Results Tracking
-```python
-import json
-from datetime import datetime
-
-results = {
-    "timestamp": datetime.now().isoformat(),
-    "model": "bert-base",
-    "accuracy": 0.92,
-    "f1": 0.89,
-    "precision": 0.91,
-    "recall": 0.87,
-}
-
-with open("results/metrics.json", "w") as f:
-    json.dump(results, f, indent=2)
-```
+- [Notebook](./Dawid-Skene-algorithm.ipynb)
+- Investigation of latent true labels from multiple noisy annotators.
+- Relevant to a recurring problem in agent evaluation: neither users nor models
+  should automatically be treated as perfect ground truth.
 
 ## Experiment Lifecycle
 
+```text
+hypothesis -> instrumentation -> baseline -> prospective run
+           -> analysis -> contradiction check -> decision
 ```
-Plan → Setup → Run → Analyze → Document → Archive
-  ↓     ↓      ↓      ↓         ↓          ↓
-  1     2      3      4         5          6
-```
 
-### 1. Plan
-- Define clear research question
-- Identify baselines
-- Plan ablations
+An experiment should document:
 
-### 2. Setup
-- Prepare data
-- Configure environment
-- Create notebooks
+1. The claim being tested.
+2. A baseline that does not contain the new behaviour.
+3. Data inclusion and exclusion rules.
+4. Ambiguous or missing observations.
+5. Negative results and contradictions.
+6. The evidence required before promotion.
 
-### 3. Run
-- Execute training
-- Monitor progress
-- Save checkpoints
+## What Does Not Count as Evidence
 
-### 4. Analyze
-- Calculate metrics
-- Create visualizations
-- Compare results
+- A single successful example.
+- A persuasive model explanation.
+- Retrospectively moving levels after an outcome.
+- Combining paper calls with trades a user actually took.
+- Treating missing outcomes as wins.
+- Repeatedly changing the strategy against the same evaluation sample.
 
-### 5. Document
-- Write findings
-- Explain methodology
-- Share insights
-
-### 6. Archive
-- Save final code
-- Store model checkpoints
-- Add to project documentation
-
-## Tips for Successful Experiments
-
-- **Start small**: Run quick experiments before large-scale ones
-- **Baseline first**: Compare against existing methods
-- **Vary one thing**: Change one hyperparameter at a time
-- **Keep records**: Log all results and settings
-- **Visualize early**: Plot results often to spot issues
-- **Save everything**: Checkpoints, configs, outputs
-- **Document well**: Future you will thank present you
-
-## Failed Experiments
-
-Don't delete failed experiments! Document why they failed:
-- What didn't work
-- Why it didn't work
-- What you learned
-- Future directions
-
-This helps avoid repeating failed approaches.
-
-## Sharing Experiments
-
-When sharing experimental results:
-1. Provide clear methodology
-2. Include reproducibility instructions
-3. Share code and configs
-4. Document results thoroughly
-5. Explain assumptions and limitations
-
-## See Also
-- [Training Techniques](../concepts/3-training-techniques/)
-- [Projects](../projects/) - For production implementations
-- [Scripts](../scripts/) - For experiment automation
+Failed experiments stay documented. Their purpose is to prevent the same idea
+from returning later with a different name and no additional evidence.
