@@ -10,3 +10,4 @@ or a dated entry in [`../failures/`](../failures/).
 | Note | Type | Links to |
 | --- | --- | --- |
 | [Blueprint proving ground](./blueprint-proving-ground.md) | Framing | agent reliability experiments |
+| [Deliberation before commitment](./deliberation-before-commitment.md) | Framing | [deliberation experiment](../experiments/deliberation-before-commitment/) |

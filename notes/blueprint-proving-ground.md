@@ -13,6 +13,9 @@ This note only states research posture. Evidence lives in experiment writeups:
 | --- | --- |
 | Separate model judgment from mechanical facts | [Hybrid decision authority](../experiments/hybrid-decision-authority/) |
 | Provenance and trust boundaries for context | [Context provenance trust](../experiments/context-provenance-trust/) |
+| Decision reasons and Brief as usable product surfaces | [Context provenance trust (human leg)](../experiments/context-provenance-trust/#human-facing-surfaces-product-level) |
+| Deliberation before human commitment | [Deliberation before commitment](../experiments/deliberation-before-commitment/) |
+| Reason accumulates; humans commit last | [Deliberation before commitment](../experiments/deliberation-before-commitment/) |
 | Unattended loops expose silent failures | [Unattended agent reliability](../experiments/unattended-agent-reliability/) |
 | Evidence trails + gated memory | [Evidence audit loops](../experiments/evidence-audit-loops/) |
 | Memory must not self-promote | [Playbook Memory](../experiments/playbook-memory/) |

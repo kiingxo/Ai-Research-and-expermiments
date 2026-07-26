@@ -13,6 +13,7 @@ here stay non-proprietary: principles, eval design, and failure shapes only.
 | --- | --- | --- |
 | [Hybrid decision authority](./hybrid-decision-authority/) | Separate model judgment from deterministic facts and human commitment | Observed (qualitative) |
 | [Context provenance trust](./context-provenance-trust/) | Provenance + trust boundaries beat dumping more context | Observed (iterated) |
+| [Deliberation before commitment](./deliberation-before-commitment/) | Reason-first posture beats opaque instant action at the desk | Observed (qualitative) |
 | [Unattended agent reliability](./unattended-agent-reliability/) | Unattended loops fail quietly unless darkness is observable | Observed (ongoing) |
 | [Evidence audit loops](./evidence-audit-loops/) | Reconstructable trails + gated memory keep systems debuggable | Observed (qualitative) |
 | [Playbook Memory](./playbook-memory/) | Episodic lessons must not self-promote into live prompts | Shadow evaluation |

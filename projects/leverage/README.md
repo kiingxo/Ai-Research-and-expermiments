@@ -69,6 +69,24 @@ The Floor visualises the system as a working desk rather than a collection of
 background jobs. It includes live agent state, calls, communications, maps,
 journals, calendars, feeds, scans, paper outcomes, and learning diagnostics.
 
+Public hosted session: [leverage.blueprintlabsai.tech](https://leverage.blueprintlabsai.tech/)
+
+## Product surfaces for humans
+
+These are the parts of Leverage meant for a person at the desk, not the
+orchestration behind them. Internals (models, prompts, guard recipes) stay out
+of this dossier.
+
+| Surface | Role |
+| --- | --- |
+| **Decision reasons** | Every published call carries a readable why so you can decide with a reason, not a black-box label. |
+| **Brief** | Session briefings at major opens: context, bias, and what to watch before the next scan or trade. |
+| **Track Record** | Shared weekly board of calls and outcomes; your journal and P&L stay private. |
+| **Floor** | The three-dimensional desk where agents, signals, maps, and session state stay visible. |
+| **Co-Pilot** | Conversational NAS100 partner: chart-aware discussion without auto placement. |
+
+Experiment link: [Context provenance and human-facing surfaces](../../experiments/context-provenance-trust/#human-facing-surfaces-product-level)
+
 ## Architecture
 
 ```mermaid
