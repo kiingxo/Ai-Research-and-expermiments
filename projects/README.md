@@ -11,6 +11,8 @@ A multimodal, browser-native market decision workstation combining live chart
 images, structured market context, deterministic trade tracking, human-in-the-
 loop analysis, and shadow-mode agent learning.
 
+**Public Floor:** [https://leverage.blueprintlabsai.tech/](https://leverage.blueprintlabsai.tech/)
+
 **Status:** active private beta and evaluation.
 
 ### [Apex AI](./apex-ai/)

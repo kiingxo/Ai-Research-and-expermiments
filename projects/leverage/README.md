@@ -1,5 +1,8 @@
 # Leverage
 
+**Public Floor:** [https://leverage.blueprintlabsai.tech/](https://leverage.blueprintlabsai.tech/)
+
+
 Leverage is the project that pushed me from experimenting with model responses
 into building a complete agent system. I wanted to know what a trading agent
 would need if it had to work beside a person, observe a live chart, remember the

@@ -20,10 +20,27 @@ I do not want to lose.
 
 | Project | What I am investigating | Status |
 | --- | --- | --- |
-| [Leverage](./projects/leverage/) | Multimodal market reasoning, decision support, agent evaluation, and memory | Private beta |
+| [Leverage](./projects/leverage/) ([Floor](https://leverage.blueprintlabsai.tech/)) | Multimodal market reasoning, decision support, agent evaluation, and memory | Private beta |
 | [Apex AI](./projects/apex-ai/) | Real time event processing, fast decision pipelines, and deterministic risk controls | Active production research |
 | [Playbook Memory](./experiments/playbook-memory/) | Persistent agent knowledge that cannot promote itself without evidence | Shadow evaluation |
 | [Production Agent Systems](./concepts/5-agent-systems/) | Context, tools, state, guardrails, observability, and human control | Ongoing notes |
+
+## Lab Experiments
+
+If you are checking whether multi-agent, memory, and decision-system claims are
+backed by work that actually ran, start here — not in manifesto prose.
+
+| Experiment | Theme | Status |
+| --- | --- | --- |
+| [Hybrid decision authority](./experiments/hybrid-decision-authority/) | Reliability / coordination | Observed (qualitative) |
+| [Context provenance trust](./experiments/context-provenance-trust/) | Provenance / trust boundaries | Observed (iterated) |
+| [Unattended agent reliability](./experiments/unattended-agent-reliability/) | Ops reliability | Observed (ongoing) |
+| [Evidence audit loops](./experiments/evidence-audit-loops/) | Auditability / memory gating | Observed (qualitative) |
+| [Playbook Memory](./experiments/playbook-memory/) | Shadow memory promotion | Shadow evaluation |
+
+Failure shapes: [`failures/LOG.md`](./failures/LOG.md). Framing only:
+[`notes/`](./notes/). Methods stay principle-level; product internals are out of
+scope for this public lab notebook.
 
 ## Leverage
 
@@ -49,6 +66,8 @@ been deciding which source is authoritative, proving whether a target was
 actually reached, keeping old chart candles from becoming new events, separating
 paper outcomes from trades a user took, and preserving enough evidence to debug
 a bad call later.
+
+Public Floor: [leverage.blueprintlabsai.tech](https://leverage.blueprintlabsai.tech/)
 
 [Read the Leverage engineering dossier](./projects/leverage/)
 
@@ -137,19 +156,15 @@ context, but it is not a replacement for the existing backend.
 
 ```text
 .
-├── concepts/
-│   ├── 1-llm-fundamentals/
-│   ├── 2-nlp-fundamentals/
-│   ├── 3-training-techniques/
-│   ├── 4-frameworks/
-│   └── 5-agent-systems/
+├── experiments/          # hypothesis → method → what ran → result (start here)
+├── failures/             # dated failure shapes (no internals)
+├── notes/                # framing only
+├── results/              # outcome pointers (no fake scoreboards)
 ├── projects/
-│   ├── leverage/
+│   ├── leverage/         # dossier + public Floor link
 │   ├── apex-ai/
 │   └── earlier fine tuning notebooks
-├── experiments/
-│   ├── playbook-memory/
-│   └── Dawid-Skene-algorithm.ipynb
+├── concepts/             # foundations learning path
 ├── data/
 ├── models/
 └── scripts/
